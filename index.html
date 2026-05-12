@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#243447">
+<title>Thomas McKean Map</title>
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#fff;
+  color:#111827;
+}
+body{
+  min-height:100vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#243447;
+  color:white;
+  padding:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+.controls{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+}
+input{
+  min-width:0;
+  font-size:18px;
+  padding:12px;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+}
+button{
+  border:0;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  font-weight:800;
+  padding:10px 12px;
+  min-height:46px;
+  font-size:16px;
+}
+button.secondary{background:#64748b}
+.info{
+  display:none;
+  background:#243447;
+  color:white;
+  padding:10px 14px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+.info.show{display:block}
+.info b{
+  background:rgba(255,255,255,.16);
+  padding:2px 6px;
+  border-radius:5px;
+}
+.note{
+  margin:6px 0 0;
+  line-height:1.35;
+  font-size:15px;
+}
+.results{
+  display:none;
+  background:#243447;
+  color:white;
+  padding:8px;
+  gap:6px;
+  max-height:260px;
+  overflow:auto;
+}
+.results.show{display:grid}
+.result{
+  text-align:left;
+  color:white;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.20);
+  border-radius:10px;
+  padding:9px;
+}
+.mapWrap{
+  width:100%;
+  background:white;
+  padding:0;
+  margin:0;
+}
+.mapStage{
+  position:relative;
+  width:100%;
+  max-width:1600px;
+  margin:0 auto;
+  background:white;
+  touch-action:pinch-zoom;
+  overscroll-behavior:contain;
+}
+.mapStage img{
+  width:100%;
+  height:auto;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
+  touch-action:pinch-zoom;
+}
+.hotspot{
+  position:absolute;
+  border:2px solid transparent;
+  background:transparent;
+  border-radius:4px;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.hotspot.active{
+  border-color:#f97316;
+  background:rgba(249,115,22,.22);
+}
+.footerSpace{
+  height:45vh;
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:white;
+  overflow:auto;
+}
+.modal.open{display:block}
+.modalHead{
+  position:sticky;
+  top:0;
+  z-index:110;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:#243447;
+  color:white;
+  padding:10px;
+}
+.lowerStage{
+  position:relative;
+  width:100%;
+  max-width:1000px;
+  aspect-ratio:4/3;
+  margin:0 auto;
+  background-image:url('mckean-map.jpg');
+  background-repeat:no-repeat;
+  background-size:205%;
+  background-position:31% 84%;
+  touch-action:pinch-zoom;
+  overscroll-behavior:contain;
+}
+.lowerStage .hotspot{
+  z-index:2;
+}
+.help{
+  padding:10px 12px;
+  color:#475569;
+  font-size:13px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="controls">
+    <input id="search" placeholder="Search room..." autocomplete="off">
+    <button id="lowerBtn" type="button">Lower</button>
+    <button id="clearBtn" class="secondary" type="button">Clear</button>
+  </div>
+</header>
+
+<section id="info" class="info">
+  <div><b id="name">—</b> <span id="meta"></span></div>
+  <p id="note" class="note"></p>
+</section>
+
+<section id="results" class="results"></section>
+
+<main class="mapWrap">
+  <div class="help">Use Chrome normally: pull down on white space to refresh, pinch the map to zoom.</div>
+  <div class="mapStage" id="mainStage">
+    <img src="mckean-map.jpg" alt="Thomas McKean High School map">
+  </div>
+  <div class="footerSpace"></div>
+</main>
+
+<div class="modal" id="lowerModal">
+  <div class="modalHead">
+    <strong>Lower Level</strong>
+    <button id="closeLower" class="secondary" type="button">Back to Main Map</button>
+  </div>
+  <div class="lowerStage" id="lowerStage"></div>
+  <div class="footerSpace"></div>
+</div>
+
+<script src="hotspots.js"></script>
+<script>
+const mainRooms = window.MCKEAN_HOTSPOTS.mainHotspots;
+const lowerRooms = window.MCKEAN_HOTSPOTS.lowerHotspots;
+const allRooms = [...mainRooms, ...lowerRooms];
+
+const mainStage = document.getElementById('mainStage');
+const lowerStage = document.getElementById('lowerStage');
+const info = document.getElementById('info');
+const nameEl = document.getElementById('name');
+const meta = document.getElementById('meta');
+const note = document.getElementById('note');
+const search = document.getElementById('search');
+const results = document.getElementById('results');
+const lowerModal = document.getElementById('lowerModal');
+
+let selected = null;
+let activeEl = null;
+
+function addHotspot(room, parent){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'hotspot';
+  b.style.left = room.x + '%';
+  b.style.top = room.y + '%';
+  b.style.width = room.w + '%';
+  b.style.height = room.h + '%';
+  b.title = room.id;
+  b.setAttribute('aria-label', room.id);
+  b.onclick = (e) => {
+    e.stopPropagation();
+    if(selected === room){
+      deselect();
+    }else{
+      select(room);
+    }
+  };
+  parent.appendChild(b);
+  room._el = b;
+}
+
+function render(){
+  mainRooms.forEach(r => addHotspot(r, mainStage));
+  lowerRooms.forEach(r => addHotspot(r, lowerStage));
+}
+
+function deselect(){
+  if(activeEl) activeEl.classList.remove('active');
+  activeEl = null;
+  selected = null;
+  info.classList.remove('show');
+}
+
+function select(room){
+  deselect();
+  selected = room;
+  if(room._el){
+    room._el.classList.add('active');
+    activeEl = room._el;
+  }
+  info.classList.add('show');
+  nameEl.textContent = room.id;
+  meta.textContent = ' — ' + room.level + ' • ' + room.type;
+  note.textContent = room.note || '';
+
+  results.classList.remove('show');
+
+  if(room.action === 'open-lower' || room.level === 'Lower Level'){
+    lowerModal.classList.add('open');
+  }
+
+  setTimeout(() => {
+    if(room._el) room._el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }, 80);
+}
+
+function updateResults(){
+  const q = search.value.trim().toLowerCase();
+  results.innerHTML = '';
+  if(!q){
+    results.classList.remove('show');
+    return;
+  }
+
+  const matches = allRooms
+    .filter(r => [r.id, r.type, r.level, ...r.aliases, r.note || ''].join(' ').toLowerCase().includes(q))
+    .slice(0, 40);
+
+  matches.forEach(r => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'result';
+    b.innerHTML = '<strong>' + r.id + '</strong><br><span>' + r.level + ' • ' + r.type + '</span>';
+    b.onclick = () => select(r);
+    results.appendChild(b);
+  });
+
+  results.classList.toggle('show', matches.length > 0);
+}
+
+search.addEventListener('input', updateResults);
+document.getElementById('clearBtn').onclick = () => {
+  search.value = '';
+  results.classList.remove('show');
+  deselect();
+  updateResults();
+};
+document.getElementById('lowerBtn').onclick = () => lowerModal.classList.add('open');
+document.getElementById('closeLower').onclick = () => {
+  lowerModal.classList.remove('open');
+  deselect();
+};
+mainStage.onclick = (e) => {
+  if(e.target === mainStage) deselect();
+};
+
+render();
+</script>
+</body>
+</html>
