@@ -16,7 +16,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 4.1558252755813445,
       "w": 11,
       "h": 17.5,
-      "note": "Top-left classroom cluster. Includes C64, C62, C60, C61, C65, and C66."
+      "note": "Main floor classroom cluster. Includes C64, C62, C60, C61, C65, and C66."
     },
     {
       "id": "C50 Cluster",
@@ -35,7 +35,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 3.0116416059237237,
       "w": 12.5,
       "h": 18,
-      "note": "Upper classroom cluster beside the C60 cluster."
+      "note": "Main floor classroom cluster. Includes C57, C53, C55, C52, C56, C50, and C51."
     },
     {
       "id": "Art / TV-Radio",
@@ -65,7 +65,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 4.231011855375665,
       "w": 10.5,
       "h": 17.8,
-      "note": "Upper middle-right classroom cluster."
+      "note": "Main floor classroom cluster. Includes C31, C33, AD, and C30."
     },
     {
       "id": "C22 Cluster",
@@ -81,7 +81,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 3.862025499799125,
       "w": 10.2,
       "h": 18,
-      "note": "Upper right C-wing area."
+      "note": "Main floor classroom cluster. Includes C22, C26, C20, and C25."
     },
     {
       "id": "C13 Cluster",
@@ -98,7 +98,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 3.580627961500264,
       "w": 12,
       "h": 18.2,
-      "note": "Upper-right C-wing cluster."
+      "note": "Main floor classroom cluster. Includes C13, Small Office, BR, C11, and C10."
     },
     {
       "id": "B40 Cluster",
@@ -116,7 +116,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 19.09228209075854,
       "w": 11,
       "h": 17,
-      "note": "Left side of the main map, below the C-wing clusters."
+      "note": "Main floor classroom cluster. Includes B44, B43, B45, B42, B46, and B41."
     },
     {
       "id": "Arena B34",
@@ -147,7 +147,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 19.3434194600024,
       "w": 8.5,
       "h": 18,
-      "note": "Attached to the Arena B34 area."
+      "note": "Main floor classroom cluster. Includes B33, B32, BR, B31, and B30."
     },
     {
       "id": "B25 Cluster",
@@ -167,7 +167,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 18.57442058109131,
       "w": 14.2,
       "h": 18.2,
-      "note": "Main floor B-wing area, near Arena B34 and the B13/B10 cluster."
+      "note": "Main floor classroom cluster. Includes B25, B24, B23, B26, B22, B21, B27, and B20."
     },
     {
       "id": "B13 Cluster",
@@ -185,7 +185,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 18.968231091160284,
       "w": 11.5,
       "h": 18,
-      "note": "Main floor B-wing area, between the B25 cluster and Library D10."
+      "note": "Main floor classroom cluster. Includes B13, B12, BR, B11, B14, and B10."
     },
     {
       "id": "Library D10",
@@ -243,7 +243,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 34.715558146414814,
       "w": 13,
       "h": 18.5,
-      "note": "Lower-left main floor classroom cluster near Preschool."
+      "note": "Main floor classroom cluster. Includes A44, A45, A46, and Preschool."
     },
     {
       "id": "A30 Cluster",
@@ -262,7 +262,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 34.997710949129925,
       "w": 14,
       "h": 18.5,
-      "note": "Lower main floor classroom cluster near A44/Preschool and A20."
+      "note": "Main floor classroom cluster. Includes A34, A33, A32, A35, A31, A36, and A30."
     },
     {
       "id": "A20 Cluster",
@@ -279,7 +279,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 34.810118553756666,
       "w": 12,
       "h": 18.5,
-      "note": "Lower main floor classroom cluster near Main Office and A30."
+      "note": "Main floor classroom cluster. Includes A23, A22, A24, A21, and A20."
     },
     {
       "id": "Main Office",

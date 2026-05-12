@@ -169,10 +169,34 @@ button.secondary{background:#64748b}
   font-size:13px;
   text-align:center;
 }
+
+.pullRefreshIndicator{
+  position:fixed;
+  top:calc(env(safe-area-inset-top,0) + 12px);
+  left:50%;
+  transform:translateX(-50%) translateY(-70px);
+  z-index:10000;
+  background:#ea580c;
+  color:white;
+  padding:10px 16px;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:900;
+  box-shadow:0 4px 16px rgba(0,0,0,.45);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .15s ease, transform .15s ease;
+}
+.pullRefreshIndicator.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
 </style>
 </head>
 
 <body>
+<div id="pullRefreshIndicator" class="pullRefreshIndicator">Release to refresh</div>
 <header>
   <div class="controls">
     <input id="search" placeholder="Search room..." autocomplete="off">
@@ -189,7 +213,7 @@ button.secondary{background:#64748b}
 <section id="results" class="results"></section>
 
 <main class="mapWrap">
-  <div class="help">Use Chrome normally: pull down on white space to refresh, pinch the map to zoom.</div>
+  <div class="help">Long pull down anywhere to refresh. Pinch the map to zoom.</div>
   <div class="mapStage" id="mainStage">
     <img src="mckean-map.jpg" alt="Thomas McKean High School map">
   </div>
@@ -323,5 +347,92 @@ mainStage.onclick = (e) => {
 
 render();
 </script>
+
+<script>
+(function(){
+  const indicator = document.getElementById('pullRefreshIndicator');
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+  let ready = false;
+  let multiTouch = false;
+
+  function isControl(target){
+    return !!(target.closest && target.closest('input, textarea, select, button'));
+  }
+
+  function show(text){
+    if(!indicator) return;
+    indicator.textContent = text;
+    indicator.classList.add('show');
+  }
+
+  function hide(){
+    if(!indicator) return;
+    indicator.classList.remove('show');
+    indicator.textContent = 'Release to refresh';
+  }
+
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length > 1){
+      multiTouch = true;
+      tracking = false;
+      ready = false;
+      hide();
+      return;
+    }
+    multiTouch = false;
+    if(isControl(e.target)){
+      tracking = false;
+      ready = false;
+      hide();
+      return;
+    }
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    tracking = true;
+    ready = false;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', function(e){
+    if(!tracking || multiTouch || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    if(dy > 170 && Math.abs(dx) < 120){
+      ready = true;
+      show('Release to refresh');
+    } else if(dy > 95 && Math.abs(dx) < 120){
+      ready = false;
+      show('Keep pulling to refresh');
+    } else {
+      ready = false;
+      hide();
+    }
+  }, {passive:true});
+
+  document.addEventListener('touchend', function(){
+    if(ready && !multiTouch){
+      show('Refreshing...');
+      setTimeout(function(){ window.location.reload(); }, 80);
+    } else {
+      hide();
+    }
+    tracking = false;
+    ready = false;
+    multiTouch = false;
+  }, {passive:true});
+
+  document.addEventListener('touchcancel', function(){
+    tracking = false;
+    ready = false;
+    multiTouch = false;
+    hide();
+  }, {passive:true});
+})();
+</script>
+
 </body>
 </html>
