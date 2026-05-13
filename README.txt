@@ -1,1 +1,1 @@
-v5b safe: based on the last working gym-link package. Only DATA was changed: Main Gym display and Outside/Outdoor labels. No click logic was changed.
+v5c pool: adds a Swimming Pool hotspot in the lower-level view and a pool hotspot on the main-map lower-level inset. Based on v5b safe.
