@@ -1,1 +1,1 @@
-Info visible on tap version: tapping a hotspot now immediately brings the room details into view under the search bar. Cluster notes remain main-floor-only and long pull refresh remains included.
+Lower level info fixed: tapping E1, E2, E31, E32, Boys/Girls Locker Rooms, or Wrestling Room shows the fixed info panel above the lower-level map.
