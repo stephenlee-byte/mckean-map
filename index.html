@@ -7,226 +7,40 @@
 <title>Thomas McKean Map</title>
 <style>
 *{box-sizing:border-box}
-html,body{
-  margin:0;
-  padding:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#fff;
-  color:#111827;
-}
-body{
-  min-height:100vh;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-}
-header{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:#243447;
-  color:white;
-  padding:10px;
-  box-shadow:0 2px 10px rgba(0,0,0,.25);
-}
-.controls{
-  display:grid;
-  grid-template-columns:1fr auto auto;
-  gap:8px;
-  align-items:center;
-}
-input{
-  min-width:0;
-  font-size:18px;
-  padding:12px;
-  border:1px solid #cbd5e1;
-  border-radius:12px;
-}
-button{
-  border:0;
-  border-radius:12px;
-  background:#2563eb;
-  color:white;
-  font-weight:800;
-  padding:10px 12px;
-  min-height:46px;
-  font-size:16px;
-}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827}
+body{min-height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+header{position:sticky;top:0;z-index:100;background:#243447;color:#fff;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+input{min-width:0;font-size:18px;padding:12px;border:1px solid #cbd5e1;border-radius:12px}
+button{border:0;border-radius:12px;background:#2563eb;color:#fff;font-weight:800;padding:10px 12px;min-height:46px;font-size:16px}
 button.secondary{background:#64748b}
-.info{
-  display:none;
-  position:fixed;
-  top:var(--infoTop, 76px);
-  left:0;
-  right:0;
-  z-index:220;
-  background:#243447;
-  color:white;
-  padding:10px 14px;
-  border-top:1px solid rgba(255,255,255,.18);
-  box-shadow:0 3px 14px rgba(0,0,0,.28);
-}
+.info{display:none;position:sticky;top:68px;z-index:90;background:#243447;color:#fff;padding:10px 14px;border-top:1px solid rgba(255,255,255,.18);box-shadow:0 2px 10px rgba(0,0,0,.22)}
 .info.show{display:block}
-.info b{
-  background:rgba(255,255,255,.16);
-  padding:2px 6px;
-  border-radius:5px;
-}
-.note{
-  margin:6px 0 0;
-  line-height:1.35;
-  font-size:15px;
-}
-.results{
-  display:none;
-  background:#243447;
-  color:white;
-  padding:8px;
-  gap:6px;
-  max-height:260px;
-  overflow:auto;
-}
+.info b{background:rgba(255,255,255,.16);padding:2px 6px;border-radius:5px}
+.note{margin:6px 0 0;line-height:1.35;font-size:15px}
+.results{display:none;background:#243447;color:#fff;padding:8px;gap:6px;max-height:260px;overflow:auto}
 .results.show{display:grid}
-.result{
-  text-align:left;
-  color:white;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.20);
-  border-radius:10px;
-  padding:9px;
-}
-.mapWrap{
-  width:100%;
-  background:white;
-  padding:0;
-  margin:0;
-}
-.mapStage{
-  position:relative;
-  width:100%;
-  max-width:1600px;
-  margin:0 auto;
-  background:white;
-  touch-action:pinch-zoom;
-  overscroll-behavior:contain;
-}
-.mapStage img{
-  width:100%;
-  height:auto;
-  display:block;
-  user-select:none;
-  -webkit-user-drag:none;
-  touch-action:pinch-zoom;
-}
-.hotspot{
-  position:absolute;
-  border:2px solid transparent;
-  background:transparent;
-  border-radius:4px;
-  cursor:pointer;
-  touch-action:manipulation;
-}
-.hotspot.active{
-  border-color:#f97316;
-  background:rgba(249,115,22,.22);
-}
-.footerSpace{
-  height:45vh;
-}
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:100;
-  background:white;
-  overflow:auto;
-}
+.result{text-align:left;color:#fff;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);border-radius:10px;padding:9px}
+.help{padding:10px 12px;color:#475569;font-size:13px;text-align:center}
+.mapStage{position:relative;width:100%;max-width:1600px;margin:0 auto;background:white;touch-action:auto}
+.mapStage img{width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none}
+.hotspot{position:absolute;border:2px solid transparent;background:transparent;border-radius:4px;cursor:pointer;touch-action:manipulation}
+.hotspot.active{border-color:#f97316;background:rgba(249,115,22,.22)}
+.footerSpace{height:45vh}
+.modal{display:none;position:fixed;inset:0;z-index:1000;background:#fff;overflow:auto}
 .modal.open{display:block}
-.modalHead{
-  position:sticky;
-  top:0;
-  z-index:110;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  background:#243447;
-  color:white;
-  padding:10px;
-}
-.lowerStage{
-  position:relative;
-  width:100%;
-  max-width:1000px;
-  aspect-ratio:4/3;
-  margin:0 auto;
-  background-image:url('mckean-map.jpg');
-  background-repeat:no-repeat;
-  background-size:205%;
-  background-position:31% 84%;
-  touch-action:pinch-zoom;
-  overscroll-behavior:contain;
-}
-.lowerStage .hotspot{
-  z-index:2;
-}
-.help{
-  padding:10px 12px;
-  color:#475569;
-  font-size:13px;
-  text-align:center;
-}
-
-.pullRefreshIndicator{
-  position:fixed;
-  top:calc(env(safe-area-inset-top,0) + 12px);
-  left:50%;
-  transform:translateX(-50%) translateY(-70px);
-  z-index:10000;
-  background:#ea580c;
-  color:white;
-  padding:10px 16px;
-  border-radius:999px;
-  font-size:15px;
-  font-weight:900;
-  box-shadow:0 4px 16px rgba(0,0,0,.45);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .15s ease, transform .15s ease;
-}
-.pullRefreshIndicator.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-
-
-.infoSpacer{display:none;height:0}
-.infoSpacer.show{display:block;height:var(--infoHeight,92px)}
-.modal.open .modalHead{margin-top:var(--infoHeight,0px)}
-
-
-.lowerInfo{
-  display:none;
-  background:#243447;
-  color:white;
-  padding:10px 14px;
-  border-top:1px solid rgba(255,255,255,.18);
-  border-bottom:1px solid rgba(255,255,255,.18);
-  position:sticky;
-  top:64px;
-  z-index:115;
-}
+.modalHead{position:sticky;top:0;z-index:1010;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#243447;color:#fff;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.lowerInfo{display:none;position:sticky;top:66px;z-index:1005;background:#243447;color:#fff;padding:10px 14px;border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18)}
 .lowerInfo.show{display:block}
-.lowerInfo b{
-  background:rgba(255,255,255,.16);
-  padding:2px 6px;
-  border-radius:5px;
-}
-
+.lowerInfo b{background:rgba(255,255,255,.16);padding:2px 6px;border-radius:5px}
+.lowerStage{position:relative;width:100%;max-width:1000px;aspect-ratio:4/3;margin:0 auto;background-image:url('mckean-map.jpg');background-repeat:no-repeat;background-size:205%;background-position:31% 84%}
+.lowerStage .hotspot{z-index:2}
+.refreshIndicator{position:fixed;top:calc(env(safe-area-inset-top,0) + 12px);left:50%;transform:translateX(-50%) translateY(-70px);z-index:2000;background:#ea580c;color:#fff;padding:10px 16px;border-radius:999px;font-size:15px;font-weight:900;box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease}
+.refreshIndicator.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
-
 <body>
-<div id="pullRefreshIndicator" class="pullRefreshIndicator">Release to refresh</div>
+<div id="refreshIndicator" class="refreshIndicator">Release to refresh</div>
 <header>
   <div class="controls">
     <input id="search" placeholder="Search room..." autocomplete="off">
@@ -240,10 +54,9 @@ button.secondary{background:#64748b}
   <p id="note" class="note"></p>
 </section>
 
-<div id="infoSpacer" class="infoSpacer"></div>
 <section id="results" class="results"></section>
 
-<main class="mapWrap">
+<main>
   <div class="help">Long pull down anywhere to refresh. Pinch the map to zoom.</div>
   <div class="mapStage" id="mainStage">
     <img src="mckean-map.jpg" alt="Thomas McKean High School map">
@@ -276,34 +89,13 @@ const info = document.getElementById('info');
 const nameEl = document.getElementById('name');
 const meta = document.getElementById('meta');
 const note = document.getElementById('note');
-const search = document.getElementById('search');
-const results = document.getElementById('results');
-const lowerModal = document.getElementById('lowerModal');
 const lowerInfo = document.getElementById('lowerInfo');
 const lowerName = document.getElementById('lowerName');
 const lowerMeta = document.getElementById('lowerMeta');
 const lowerNote = document.getElementById('lowerNote');
-
-function updateStickyInfoTop(){
-  const header = document.querySelector('header');
-  const h = header ? header.offsetHeight : 70;
-  document.documentElement.style.setProperty('--stickyTop', h + 'px');
-  if(info) info.style.top = h + 'px';
-}
-window.addEventListener('resize', updateStickyInfoTop);
-setTimeout(updateStickyInfoTop, 100);
-
-
-function updateInfoPanelLayout(){
-  const header = document.querySelector('header');
-  const h = header ? header.offsetHeight : 76;
-  document.documentElement.style.setProperty('--infoTop', h + 'px');
-  if(info && info.classList.contains('show')){
-    document.documentElement.style.setProperty('--infoHeight', info.offsetHeight + 'px');
-  }
-}
-window.addEventListener('resize', updateInfoPanelLayout);
-setTimeout(updateInfoPanelLayout, 100);
+const search = document.getElementById('search');
+const results = document.getElementById('results');
+const lowerModal = document.getElementById('lowerModal');
 
 let selected = null;
 let activeEl = null;
@@ -318,14 +110,11 @@ function addHotspot(room, parent){
   b.style.height = room.h + '%';
   b.title = room.id;
   b.setAttribute('aria-label', room.id);
-  b.dataset.roomId = room.id;
-  b.onclick = (e) => {
+  b.onclick = function(e){
+    e.preventDefault();
     e.stopPropagation();
-    if(selected === room){
-      deselect();
-    }else{
-      select(room);
-    }
+    if(selected === room){ deselect(); return; }
+    selectRoom(room);
   };
   parent.appendChild(b);
   room._el = b;
@@ -336,39 +125,53 @@ function render(){
   lowerRooms.forEach(r => addHotspot(r, lowerStage));
 }
 
-function deselect(){
+function clearActive(){
   if(activeEl) activeEl.classList.remove('active');
   activeEl = null;
-  selected = null;
-  info.classList.remove('show');
-  const infoSpacer = document.getElementById('infoSpacer');
-  if(infoSpacer) infoSpacer.classList.remove('show');
-  hideLowerRoomInfo();
 }
 
-function select(room){
-  deselect();
+function deselect(){
+  clearActive();
+  selected = null;
+  info.classList.remove('show');
+  lowerInfo.classList.remove('show');
+}
+
+function showMainInfo(room){
+  info.classList.add('show');
+  nameEl.textContent = room.id;
+  meta.textContent = ' — ' + room.level + ' • ' + room.type;
+  note.textContent = room.note || '';
+}
+
+function showLowerInfo(room){
+  lowerInfo.classList.add('show');
+  lowerName.textContent = room.id;
+  lowerMeta.textContent = ' — ' + room.level + ' • ' + room.type;
+  lowerNote.textContent = room.note || '';
+}
+
+function selectRoom(room){
+  clearActive();
   selected = room;
   if(room._el){
     room._el.classList.add('active');
     activeEl = room._el;
   }
-  info.classList.add('show');
-  nameEl.textContent = room.id;
-  meta.textContent = ' — ' + room.level + ' • ' + room.type;
-  note.textContent = room.note || '';
-  updateInfoPanelLayout();
-  const infoSpacer = document.getElementById('infoSpacer');
-  if(infoSpacer) infoSpacer.classList.add('show');
-  setTimeout(updateInfoPanelLayout, 30);
-  showLowerRoomInfo(room);
 
-  updateStickyInfoTop();
-
+  showMainInfo(room);
   results.classList.remove('show');
 
-  if(room.action === 'open-lower' || room.level === 'Lower Level'){
+  if(room.action === 'open-lower'){
     lowerModal.classList.add('open');
+    return;
+  }
+
+  if(room.level === 'Lower Level'){
+    lowerModal.classList.add('open');
+    showLowerInfo(room);
+    setTimeout(() => room._el && room._el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'}), 80);
+    return;
   }
 }
 
@@ -379,20 +182,15 @@ function updateResults(){
     results.classList.remove('show');
     return;
   }
-
-  const matches = allRooms
-    .filter(r => [r.id, r.type, r.level, ...r.aliases, r.note || ''].join(' ').toLowerCase().includes(q))
-    .slice(0, 40);
-
+  const matches = allRooms.filter(r => [r.id,r.type,r.level,...r.aliases,r.note||''].join(' ').toLowerCase().includes(q)).slice(0,40);
   matches.forEach(r => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'result';
     b.innerHTML = '<strong>' + r.id + '</strong><br><span>' + r.level + ' • ' + r.type + '</span>';
-    b.onclick = () => select(r);
+    b.onclick = () => selectRoom(r);
     results.appendChild(b);
   });
-
   results.classList.toggle('show', matches.length > 0);
 }
 
@@ -401,121 +199,47 @@ document.getElementById('clearBtn').onclick = () => {
   search.value = '';
   results.classList.remove('show');
   deselect();
-  updateResults();
 };
 document.getElementById('lowerBtn').onclick = () => lowerModal.classList.add('open');
 document.getElementById('closeLower').onclick = () => {
   lowerModal.classList.remove('open');
-  hideLowerRoomInfo();
+  lowerInfo.classList.remove('show');
   deselect();
 };
-mainStage.onclick = (e) => {
+
+mainStage.addEventListener('click', function(e){
   if(e.target === mainStage) deselect();
-};
+});
 
-
-document.addEventListener('pointerup', function(e){
-  const el = e.target.closest && e.target.closest('.hotspot');
-  if(!el || !el.dataset.roomId) return;
-  const room = allRooms.find(r => r.id === el.dataset.roomId);
-  if(!room) return;
-  if(room.level === 'Lower Level'){
-    showRoomInfo(room);
-    if(activeEl) activeEl.classList.remove('active');
-    el.classList.add('active');
-    activeEl = el;
-    selected = room;
-  }
-}, true);
+// Less-sensitive long pull to refresh
+(function(){
+  const indicator = document.getElementById('refreshIndicator');
+  let sx=0, sy=0, tracking=false, ready=false, multi=false;
+  function isControl(t){ return !!(t.closest && t.closest('input,textarea,select,button')); }
+  function show(text){ indicator.textContent=text; indicator.classList.add('show'); }
+  function hide(){ indicator.classList.remove('show'); indicator.textContent='Release to refresh'; }
+  document.addEventListener('touchstart', e => {
+    if(e.touches.length > 1){ multi=true; tracking=false; ready=false; hide(); return; }
+    multi=false;
+    if(isControl(e.target)){ tracking=false; ready=false; hide(); return; }
+    const t=e.touches[0]; sx=t.clientX; sy=t.clientY; tracking=true; ready=false;
+  }, {passive:true});
+  document.addEventListener('touchmove', e => {
+    if(!tracking || multi || e.touches.length !== 1) return;
+    const t=e.touches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(dy > 170 && Math.abs(dx) < 120){ ready=true; show('Release to refresh'); }
+    else if(dy > 95 && Math.abs(dx) < 120){ ready=false; show('Keep pulling to refresh'); }
+    else { ready=false; hide(); }
+  }, {passive:true});
+  document.addEventListener('touchend', () => {
+    if(ready && !multi){ show('Refreshing...'); setTimeout(() => window.location.reload(), 80); }
+    else hide();
+    tracking=false; ready=false; multi=false;
+  }, {passive:true});
+  document.addEventListener('touchcancel', () => { tracking=false; ready=false; multi=false; hide(); }, {passive:true});
+})();
 
 render();
 </script>
-
-<script>
-(function(){
-  const indicator = document.getElementById('pullRefreshIndicator');
-  let startX = 0;
-  let startY = 0;
-  let tracking = false;
-  let ready = false;
-  let multiTouch = false;
-
-  function isControl(target){
-    return !!(target.closest && target.closest('input, textarea, select, button'));
-  }
-
-  function show(text){
-    if(!indicator) return;
-    indicator.textContent = text;
-    indicator.classList.add('show');
-  }
-
-  function hide(){
-    if(!indicator) return;
-    indicator.classList.remove('show');
-    indicator.textContent = 'Release to refresh';
-  }
-
-  document.addEventListener('touchstart', function(e){
-    if(e.touches.length > 1){
-      multiTouch = true;
-      tracking = false;
-      ready = false;
-      hide();
-      return;
-    }
-    multiTouch = false;
-    if(isControl(e.target)){
-      tracking = false;
-      ready = false;
-      hide();
-      return;
-    }
-    const t = e.touches[0];
-    startX = t.clientX;
-    startY = t.clientY;
-    tracking = true;
-    ready = false;
-  }, {passive:true});
-
-  document.addEventListener('touchmove', function(e){
-    if(!tracking || multiTouch || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    const dx = t.clientX - startX;
-    const dy = t.clientY - startY;
-
-    if(dy > 170 && Math.abs(dx) < 120){
-      ready = true;
-      show('Release to refresh');
-    } else if(dy > 95 && Math.abs(dx) < 120){
-      ready = false;
-      show('Keep pulling to refresh');
-    } else {
-      ready = false;
-      hide();
-    }
-  }, {passive:true});
-
-  document.addEventListener('touchend', function(){
-    if(ready && !multiTouch){
-      show('Refreshing...');
-      setTimeout(function(){ window.location.reload(); }, 80);
-    } else {
-      hide();
-    }
-    tracking = false;
-    ready = false;
-    multiTouch = false;
-  }, {passive:true});
-
-  document.addEventListener('touchcancel', function(){
-    tracking = false;
-    ready = false;
-    multiTouch = false;
-    hide();
-  }, {passive:true});
-})();
-</script>
-
 </body>
 </html>

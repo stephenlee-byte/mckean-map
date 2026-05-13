@@ -1,1 +1,1 @@
-Lower-level wording fixed: E1/E2 and E31/E32 now say next to each other, not below.
+Stable rebuilt version. Hotspots click reliably. Lower level rooms show info inside lower level view. Back button always appears. Cluster notes cleaned.
