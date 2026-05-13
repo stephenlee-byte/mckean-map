@@ -1,1 +1,1 @@
-Adds a hotspot over the large gray gym area. Tapping it opens lower level and highlights Lower Level Gym/Court.
+Outdoor notes fixed: Football Field, Barn, and Greenhouse now say Outdoor area and use Outside as the level.
