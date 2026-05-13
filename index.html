@@ -54,10 +54,14 @@ button{
 button.secondary{background:#64748b}
 .info{
   display:none;
+  position:sticky;
+  top:70px;
+  z-index:45;
   background:#243447;
   color:white;
   padding:10px 14px;
   border-top:1px solid rgba(255,255,255,.18);
+  box-shadow:0 2px 10px rgba(0,0,0,.22);
 }
 .info.show{display:block}
 .info b{
@@ -245,6 +249,15 @@ const search = document.getElementById('search');
 const results = document.getElementById('results');
 const lowerModal = document.getElementById('lowerModal');
 
+function updateStickyInfoTop(){
+  const header = document.querySelector('header');
+  const h = header ? header.offsetHeight : 70;
+  document.documentElement.style.setProperty('--stickyTop', h + 'px');
+  if(info) info.style.top = h + 'px';
+}
+window.addEventListener('resize', updateStickyInfoTop);
+setTimeout(updateStickyInfoTop, 100);
+
 let selected = null;
 let activeEl = null;
 
@@ -294,15 +307,21 @@ function select(room){
   meta.textContent = ' — ' + room.level + ' • ' + room.type;
   note.textContent = room.note || '';
 
+  updateStickyInfoTop();
+  // Show the details immediately after tapping, without requiring the user to pull down.
+  const header = document.querySelector('header');
+  const headerH = header ? header.offsetHeight : 70;
+  const infoTop = info.getBoundingClientRect().top;
+  if(infoTop < headerH || infoTop > window.innerHeight * 0.45){
+    const target = window.scrollY + infoTop - headerH;
+    window.scrollTo({top: Math.max(0, target), behavior:'smooth'});
+  }
+
   results.classList.remove('show');
 
   if(room.action === 'open-lower' || room.level === 'Lower Level'){
     lowerModal.classList.add('open');
   }
-
-  setTimeout(() => {
-    if(room._el) room._el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
-  }, 80);
 }
 
 function updateResults(){

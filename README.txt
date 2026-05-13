@@ -1,1 +1,1 @@
-Main-floor notes + long pull refresh version. Cluster notes no longer say top-left/lower-left. Long pull down anywhere refreshes the page; threshold is about 170px.
+Info visible on tap version: tapping a hotspot now immediately brings the room details into view under the search bar. Cluster notes remain main-floor-only and long pull refresh remains included.
