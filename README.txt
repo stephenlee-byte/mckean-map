@@ -1,1 +1,1 @@
-Outdoor notes fixed: Football Field, Barn, and Greenhouse now say Outdoor area and use Outside as the level.
+v4: Lower-level gym hotspot display changed to Main Gym. Football Field, Barn, Greenhouse, and Automotive Shop are Outside/Outdoor area.

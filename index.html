@@ -75,7 +75,7 @@ button.secondary{background:#64748b}
   <div class="footerSpace"></div>
 </div>
 
-<div class="version">simple v3 outside-notes outside-notes</div>
+<div class="version">simple v4 main-gym-outside</div>
 
 <script>
 const DATA = {
@@ -512,8 +512,8 @@ const DATA = {
     },
     {
       "id": "Automotive Shop",
-      "type": "Facility",
-      "level": "Main Floor",
+      "type": "Outdoor",
+      "level": "Outside",
       "aliases": [
         "Automotive Shop"
       ],
@@ -521,7 +521,7 @@ const DATA = {
       "y": 57.186071132254,
       "w": 5,
       "h": 20,
-      "note": "Far right side near the Music Room/Band area."
+      "note": "Outdoor area."
     },
     {
       "id": "Football Field",
@@ -618,28 +618,29 @@ const DATA = {
       "y": 53.2,
       "w": 16.4,
       "h": 23.4,
-      "note": "Tap to view the lower-level gym/court area.",
+      "note": "Tap to view the Main Gym area.",
       "action": "open-lower-room",
-      "target": "Lower Level Gym"
+      "target": "Main Gym"
     }
   ],
   "lowerHotspots": [
     {
-      "id": "Lower Level Gym",
+      "id": "Main Gym",
       "type": "Facility",
       "level": "Lower Level",
       "aliases": [
-        "Lower Level Gym",
-        "Lower Level Court",
         "Gym",
         "Court",
-        "Downstairs Gym"
+        "Main Gym",
+        "Downstairs Gym",
+        "Lower Level Gym",
+        "Lower Level Court"
       ],
       "x": 31.2,
       "y": 18.3,
       "w": 22.3,
       "h": 34.8,
-      "note": "Lower Level gym/court area."
+      "note": "Main Gym area."
     },
     {
       "id": "E1",
@@ -734,8 +735,7 @@ const DATA = {
     }
   ]
 };
-const mainRooms = DATA.mainHotspots;
-const lowerRooms = DATA.lowerHotspots;
+const mainRoomslowerRooms = DATA.lowerHotspots;
 const allRooms = [...mainRooms, ...lowerRooms];
 
 const mainStage = document.getElementById('mainStage');
