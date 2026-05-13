@@ -58,7 +58,7 @@ button.secondary{background:#64748b}
   top:var(--infoTop, 76px);
   left:0;
   right:0;
-  z-index:220;
+  z-index:5000;
   background:#243447;
   color:white;
   padding:10px 14px;
@@ -136,7 +136,7 @@ button.secondary{background:#64748b}
   display:none;
   position:fixed;
   inset:0;
-  z-index:100;
+  z-index:1000;
   background:white;
   overflow:auto;
 }
@@ -166,9 +166,7 @@ button.secondary{background:#64748b}
   touch-action:pinch-zoom;
   overscroll-behavior:contain;
 }
-.lowerStage .hotspot{
-  z-index:2;
-}
+.lowerStage .hotspot{z-index:20;pointer-events:auto;}
 .help{
   padding:10px 12px;
   color:#475569;
@@ -291,14 +289,7 @@ function addHotspot(room, parent){
   b.style.height = room.h + '%';
   b.title = room.id;
   b.setAttribute('aria-label', room.id);
-  b.onclick = (e) => {
-    e.stopPropagation();
-    if(selected === room){
-      deselect();
-    }else{
-      select(room);
-    }
-  };
+  b.onclick = (e) => { e.stopPropagation(); select(room); };
   parent.appendChild(b);
   room._el = b;
 }
@@ -317,27 +308,42 @@ function deselect(){
   if(infoSpacer) infoSpacer.classList.remove('show');
 }
 
-function select(room){
-  deselect();
-  selected = room;
-  if(room._el){
-    room._el.classList.add('active');
-    activeEl = room._el;
-  }
+
+function showRoomInfo(room){
+  updateInfoPanelLayout();
   info.classList.add('show');
   nameEl.textContent = room.id;
   meta.textContent = ' — ' + room.level + ' • ' + room.type;
   note.textContent = room.note || '';
-  updateInfoPanelLayout();
   const infoSpacer = document.getElementById('infoSpacer');
   if(infoSpacer) infoSpacer.classList.add('show');
   setTimeout(updateInfoPanelLayout, 30);
+}
 
-  updateStickyInfoTop();
+function select(room){
+  if(selected === room){
+    deselect();
+    return;
+  }
 
-  results.classList.remove('show');
+  deselect();
+  selected = room;
 
-  if(room.action === 'open-lower' || room.level === 'Lower Level'){
+  if(room._el){
+    room._el.classList.add('active');
+    activeEl = room._el;
+  }
+
+  showRoomInfo(room);
+
+  if(results) results.classList.remove('show');
+
+  if(room.action === 'open-lower'){
+    lowerModal.classList.add('open');
+    return;
+  }
+
+  if(room.level === 'Lower Level'){
     lowerModal.classList.add('open');
   }
 }
