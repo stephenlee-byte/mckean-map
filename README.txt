@@ -1,1 +1,1 @@
-v5: Main Gym display fixed. Automotive Shop, Football Field, Barn, and Greenhouse are Outside / Outdoor area.
+v5b safe: based on the last working gym-link package. Only DATA was changed: Main Gym display and Outside/Outdoor labels. No click logic was changed.
