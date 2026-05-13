@@ -75,7 +75,7 @@ button.secondary{background:#64748b}
   <div class="footerSpace"></div>
 </div>
 
-<div class="version">simple v4 main-gym-outside</div>
+<div class="version">simple v5 main-gym-outside</div>
 
 <script>
 const DATA = {
@@ -609,10 +609,10 @@ const DATA = {
       "level": "Main Floor",
       "aliases": [
         "Main Gym",
-        "Gym",
-        "Lower Level Gym",
+        "Main Gym",
+        "Downstairs Gym",
         "Lower Level Court",
-        "Downstairs Gym"
+        "Gym"
       ],
       "x": 65.2,
       "y": 53.2,
@@ -633,7 +633,7 @@ const DATA = {
         "Court",
         "Main Gym",
         "Downstairs Gym",
-        "Lower Level Gym",
+        "Main Gym",
         "Lower Level Court"
       ],
       "x": 31.2,
@@ -735,7 +735,8 @@ const DATA = {
     }
   ]
 };
-const mainRoomslowerRooms = DATA.lowerHotspots;
+const mainRooms = DATA.mainHotspots;
+const lowerRooms = DATA.lowerHotspots;
 const allRooms = [...mainRooms, ...lowerRooms];
 
 const mainStage = document.getElementById('mainStage');

@@ -1,1 +1,1 @@
-v4: Lower-level gym hotspot display changed to Main Gym. Football Field, Barn, Greenhouse, and Automotive Shop are Outside/Outdoor area.
+v5: Main Gym display fixed. Automotive Shop, Football Field, Barn, and Greenhouse are Outside / Outdoor area.
