@@ -1,1 +1,1 @@
-Lower level info fixed: tapping E1, E2, E31, E32, Boys/Girls Locker Rooms, or Wrestling Room shows the fixed info panel above the lower-level map.
+Lower info modal panel version: lower-level rooms show their details inside the lower-level modal and also update the main info panel.

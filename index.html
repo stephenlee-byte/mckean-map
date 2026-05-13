@@ -58,7 +58,7 @@ button.secondary{background:#64748b}
   top:var(--infoTop, 76px);
   left:0;
   right:0;
-  z-index:5000;
+  z-index:220;
   background:#243447;
   color:white;
   padding:10px 14px;
@@ -136,7 +136,7 @@ button.secondary{background:#64748b}
   display:none;
   position:fixed;
   inset:0;
-  z-index:1000;
+  z-index:100;
   background:white;
   overflow:auto;
 }
@@ -166,7 +166,9 @@ button.secondary{background:#64748b}
   touch-action:pinch-zoom;
   overscroll-behavior:contain;
 }
-.lowerStage .hotspot{z-index:20;pointer-events:auto;}
+.lowerStage .hotspot{
+  z-index:2;
+}
 .help{
   padding:10px 12px;
   color:#475569;
@@ -200,6 +202,25 @@ button.secondary{background:#64748b}
 .infoSpacer{display:none;height:0}
 .infoSpacer.show{display:block;height:var(--infoHeight,92px)}
 .modal.open .modalHead{margin-top:var(--infoHeight,0px)}
+
+
+.lowerInfo{
+  display:none;
+  background:#243447;
+  color:white;
+  padding:10px 14px;
+  border-top:1px solid rgba(255,255,255,.18);
+  border-bottom:1px solid rgba(255,255,255,.18);
+  position:sticky;
+  top:64px;
+  z-index:115;
+}
+.lowerInfo.show{display:block}
+.lowerInfo b{
+  background:rgba(255,255,255,.16);
+  padding:2px 6px;
+  border-radius:5px;
+}
 
 </style>
 </head>
@@ -235,6 +256,10 @@ button.secondary{background:#64748b}
     <strong>Lower Level</strong>
     <button id="closeLower" class="secondary" type="button">Back to Main Map</button>
   </div>
+  <section id="lowerInfo" class="lowerInfo">
+    <div><b id="lowerName">—</b> <span id="lowerMeta"></span></div>
+    <p id="lowerNote" class="note"></p>
+  </section>
   <div class="lowerStage" id="lowerStage"></div>
   <div class="footerSpace"></div>
 </div>
@@ -254,6 +279,10 @@ const note = document.getElementById('note');
 const search = document.getElementById('search');
 const results = document.getElementById('results');
 const lowerModal = document.getElementById('lowerModal');
+const lowerInfo = document.getElementById('lowerInfo');
+const lowerName = document.getElementById('lowerName');
+const lowerMeta = document.getElementById('lowerMeta');
+const lowerNote = document.getElementById('lowerNote');
 
 function updateStickyInfoTop(){
   const header = document.querySelector('header');
@@ -289,7 +318,15 @@ function addHotspot(room, parent){
   b.style.height = room.h + '%';
   b.title = room.id;
   b.setAttribute('aria-label', room.id);
-  b.onclick = (e) => { e.stopPropagation(); select(room); };
+  b.dataset.roomId = room.id;
+  b.onclick = (e) => {
+    e.stopPropagation();
+    if(selected === room){
+      deselect();
+    }else{
+      select(room);
+    }
+  };
   parent.appendChild(b);
   room._el = b;
 }
@@ -306,44 +343,31 @@ function deselect(){
   info.classList.remove('show');
   const infoSpacer = document.getElementById('infoSpacer');
   if(infoSpacer) infoSpacer.classList.remove('show');
-}
-
-
-function showRoomInfo(room){
-  updateInfoPanelLayout();
-  info.classList.add('show');
-  nameEl.textContent = room.id;
-  meta.textContent = ' — ' + room.level + ' • ' + room.type;
-  note.textContent = room.note || '';
-  const infoSpacer = document.getElementById('infoSpacer');
-  if(infoSpacer) infoSpacer.classList.add('show');
-  setTimeout(updateInfoPanelLayout, 30);
+  hideLowerRoomInfo();
 }
 
 function select(room){
-  if(selected === room){
-    deselect();
-    return;
-  }
-
   deselect();
   selected = room;
-
   if(room._el){
     room._el.classList.add('active');
     activeEl = room._el;
   }
+  info.classList.add('show');
+  nameEl.textContent = room.id;
+  meta.textContent = ' — ' + room.level + ' • ' + room.type;
+  note.textContent = room.note || '';
+  updateInfoPanelLayout();
+  const infoSpacer = document.getElementById('infoSpacer');
+  if(infoSpacer) infoSpacer.classList.add('show');
+  setTimeout(updateInfoPanelLayout, 30);
+  showLowerRoomInfo(room);
 
-  showRoomInfo(room);
+  updateStickyInfoTop();
 
-  if(results) results.classList.remove('show');
+  results.classList.remove('show');
 
-  if(room.action === 'open-lower'){
-    lowerModal.classList.add('open');
-    return;
-  }
-
-  if(room.level === 'Lower Level'){
+  if(room.action === 'open-lower' || room.level === 'Lower Level'){
     lowerModal.classList.add('open');
   }
 }
@@ -382,11 +406,27 @@ document.getElementById('clearBtn').onclick = () => {
 document.getElementById('lowerBtn').onclick = () => lowerModal.classList.add('open');
 document.getElementById('closeLower').onclick = () => {
   lowerModal.classList.remove('open');
+  hideLowerRoomInfo();
   deselect();
 };
 mainStage.onclick = (e) => {
   if(e.target === mainStage) deselect();
 };
+
+
+document.addEventListener('pointerup', function(e){
+  const el = e.target.closest && e.target.closest('.hotspot');
+  if(!el || !el.dataset.roomId) return;
+  const room = allRooms.find(r => r.id === el.dataset.roomId);
+  if(!room) return;
+  if(room.level === 'Lower Level'){
+    showRoomInfo(room);
+    if(activeEl) activeEl.classList.remove('active');
+    el.classList.add('active');
+    activeEl = el;
+    selected = room;
+  }
+}, true);
 
 render();
 </script>
