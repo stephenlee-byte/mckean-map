@@ -1,1 +1,1 @@
-v5c pool: adds a Swimming Pool hotspot in the lower-level view and a pool hotspot on the main-map lower-level inset. Based on v5b safe.
+v5d pool-fixed: Swimming Pool hotspot reduced so it does not cover the locker rooms.
