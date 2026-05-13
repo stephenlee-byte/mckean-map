@@ -1,1 +1,1 @@
-Stable rebuilt version. Hotspots click reliably. Lower level rooms show info inside lower level view. Back button always appears. Cluster notes cleaned.
+Simple reliable v3. Inline hotspot data, no external JS file, plain click/tap handlers, lower level info panel.
