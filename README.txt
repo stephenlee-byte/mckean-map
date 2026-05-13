@@ -1,1 +1,1 @@
-Simple reliable v3. Inline hotspot data, no external JS file, plain click/tap handlers, lower level info panel.
+Adds a hotspot over the large gray gym area. Tapping it opens lower level and highlights Lower Level Gym/Court.
