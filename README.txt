@@ -1,1 +1,1 @@
-Lower level info fixed: tapping E1, E2, E31, E32, Boys/Girls Locker Rooms, or Wrestling Room shows the fixed info panel above the lower-level map.
+Fixed info panel for all hotspots. Room details now appear as a fixed panel under the search bar for Music Room, lower-level rooms, and all other hotspots.
