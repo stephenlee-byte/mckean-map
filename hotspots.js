@@ -536,7 +536,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 23.58518021195023,
       "w": 10,
       "h": 20,
-      "note": "Lower Level room, left side of the downstairs map."
+      "note": "Lower Level room, next to E2."
     },
     {
       "id": "E2",
@@ -549,7 +549,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 41.18518518518518,
       "w": 10,
       "h": 20,
-      "note": "Lower Level room, below E1."
+      "note": "Lower Level room, next to E1."
     },
     {
       "id": "E32",
@@ -562,7 +562,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 26.548149956597225,
       "w": 10,
       "h": 16,
-      "note": "Lower Level room, right side of the downstairs map."
+      "note": "Lower Level room, next to E31."
     },
     {
       "id": "E31",
@@ -575,7 +575,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 38.911110206886576,
       "w": 10,
       "h": 16,
-      "note": "Lower Level room, below E32."
+      "note": "Lower Level room, next to E32."
     },
     {
       "id": "Boys Locker Rooms",
@@ -614,7 +614,7 @@ window.MCKEAN_HOTSPOTS = {
       "y": 55.985175238715286,
       "w": 19,
       "h": 23,
-      "note": "Lower Level, right side of the downstairs map."
+      "note": "Lower Level room near E31 and E32."
     }
   ]
 };

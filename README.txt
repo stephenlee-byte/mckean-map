@@ -1,1 +1,1 @@
-Lower info modal panel version: lower-level rooms show their details inside the lower-level modal and also update the main info panel.
+Lower-level wording fixed: E1/E2 and E31/E32 now say next to each other, not below.
