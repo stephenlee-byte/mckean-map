@@ -1,1 +1,1 @@
-v8d no-jump: hotspot clicks no longer auto-scroll on desktop/tablet, preventing the map from jumping underneath the info panel. Mobile still scrolls info into view.
+v8e mobile-no-jump: removed mobile auto-scroll when hotspots are tapped so the map no longer jumps under the info panel. Fit behavior remains from v8c/v8d.
