@@ -1,1 +1,1 @@
-v8 clean rebuild: simple reliable click handling, visible main/lower info, working plus/minus/fit controls, and normal page scrolling.
+v8b: Fit recenters the map while keeping the current hotspot selected and its info visible. Based on v8 clean.
