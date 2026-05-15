@@ -1,1 +1,1 @@
-v7e rollback-stable: rolled back to last working v7b click/zoom logic. Only changed hotspot data to stop Main Gym access from overlapping Auxiliary Gym.
+v8 clean rebuild: simple reliable click handling, visible main/lower info, working plus/minus/fit controls, and normal page scrolling.

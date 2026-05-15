@@ -1,9 +1,1 @@
-{
-"name":"Thomas McKean Map",
-"short_name":"McKean Map",
-"start_url":"./index.html",
-"display":"browser",
-"background_color":"#ffffff",
-"theme_color":"#243447",
-"icons":[]
-}
+{"name":"Thomas McKean Map","short_name":"McKean Map","start_url":"./index.html","display":"browser","background_color":"#ffffff","theme_color":"#243447","icons":[]}
