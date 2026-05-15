@@ -199,6 +199,65 @@ button{
   }
 }
 
+
+/* v7 zoom controls */
+.mapViewport,
+.lowerViewport{
+  width:100%;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.mapViewport{
+  max-width:1600px;
+  margin:0 auto;
+}
+.lowerViewport{
+  max-width:1000px;
+  margin:0 auto;
+}
+.zoomDock{
+  position:fixed;
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index:3000;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.zoomCtl{
+  width:64px;
+  min-width:64px;
+  min-height:64px;
+  height:64px;
+  border-radius:999px;
+  font-size:30px;
+  line-height:1;
+  padding:0;
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+}
+.zoomFit{
+  height:auto;
+  min-height:64px;
+  font-size:24px;
+}
+@media (max-width: 640px){
+  .zoomDock{
+    right:14px;
+    bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .zoomCtl{
+    width:58px;
+    min-width:58px;
+    height:58px;
+    min-height:58px;
+    font-size:28px;
+  }
+  .zoomFit{
+    font-size:22px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -219,8 +278,10 @@ button{
 
 <main>
   <div class="help">Tap or click a room area. Pinch on mobile or use browser zoom on desktop.</div>
-  <div class="mapStage" id="mainStage">
+  <div class="mapViewport" id="mainViewport">
+    <div class="mapStage" id="mainStage">
     <img src="mckean-map-simple-v3.jpg?v=1778668346" alt="Thomas McKean High School map">
+  </div>
   </div>
   <div class="footerSpace"></div>
 </main>
@@ -234,11 +295,18 @@ button{
     <div><b id="lowerName">—</b> <span id="lowerMeta"></span></div>
     <p id="lowerNote" class="note"></p>
   </section>
-  <div class="lowerStage" id="lowerStage"></div>
+  <div class="lowerViewport" id="lowerViewport">
+    <div class="lowerStage" id="lowerStage"></div>
+  </div>
   <div class="footerSpace"></div>
 </div>
 
-<div class="version">simple v6 responsive</div>
+<div class="zoomDock" aria-label="Map zoom controls">
+  <button id="zoomInBtn" class="zoomCtl" type="button" aria-label="Zoom in">+</button>
+  <button id="zoomOutBtn" class="zoomCtl" type="button" aria-label="Zoom out">−</button>
+  <button id="zoomFitBtn" class="zoomCtl zoomFit" type="button" aria-label="Fit map">Fit</button>
+</div>
+<div class="version">simple v7 zoom-buttons</div>
 
 <script>
 const DATA = {
@@ -764,7 +832,7 @@ const DATA = {
       "y": 72.54181438998957,
       "w": 9.8,
       "h": 13.2,
-      "note": "Main floor auxiliary gym/court area. It is reached by going up a set of stairs past the main gym area."
+      "note": "Main floor auxiliary gym/court area. It can be reached from outside if the doors are unlocked, or by going downstairs, past the main gym, through the set of doors at the end of the hall, and up the stairs."
     },
     {
       "id": "Main Gym / Lower Level Access",
@@ -1085,6 +1153,75 @@ document.getElementById('closeLower').addEventListener('click', () => {
 });
 
 render();
+
+const mainViewport = document.getElementById('mainViewport');
+const lowerViewport = document.getElementById('lowerViewport');
+const zoomInBtn = document.getElementById('zoomInBtn');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+const zoomFitBtn = document.getElementById('zoomFitBtn');
+
+let mainZoom = 1;
+let lowerZoom = 1;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.2;
+
+function activeZoomContext(){
+  return lowerModal.classList.contains('open') ? 'lower' : 'main';
+}
+
+function applyStageZoom(stage, viewport, zoom, baseMax){
+  if(zoom <= 1.001){
+    stage.style.width = '100%';
+    stage.style.maxWidth = baseMax;
+  } else {
+    stage.style.maxWidth = 'none';
+    stage.style.width = (zoom * 100) + '%';
+  }
+}
+
+function applyZooms(){
+  applyStageZoom(mainStage, mainViewport, mainZoom, '1600px');
+  applyStageZoom(lowerStage, lowerViewport, lowerZoom, '1000px');
+}
+
+function setActiveZoom(newZoom){
+  const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round(newZoom * 100) / 100));
+  if(activeZoomContext() === 'lower'){
+    lowerZoom = z;
+  } else {
+    mainZoom = z;
+  }
+  applyZooms();
+}
+
+function currentViewport(){
+  return activeZoomContext() === 'lower' ? lowerViewport : mainViewport;
+}
+
+zoomInBtn.addEventListener('click', () => {
+  const current = activeZoomContext() === 'lower' ? lowerZoom : mainZoom;
+  setActiveZoom(current + ZOOM_STEP);
+});
+
+zoomOutBtn.addEventListener('click', () => {
+  const current = activeZoomContext() === 'lower' ? lowerZoom : mainZoom;
+  setActiveZoom(current - ZOOM_STEP);
+});
+
+zoomFitBtn.addEventListener('click', () => {
+  if(activeZoomContext() === 'lower'){
+    lowerZoom = 1;
+  } else {
+    mainZoom = 1;
+  }
+  applyZooms();
+  const vp = currentViewport();
+  vp.scrollTo({left:0, top:0, behavior:'smooth'});
+});
+
+applyZooms();
+
 </script>
 </body>
 </html>

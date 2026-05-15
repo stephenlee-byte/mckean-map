@@ -1,1 +1,1 @@
-v6 responsive: based on v5d pool-fixed. Improved for mobile, tablets, desktops, landscape phones, keyboard focus, and browser zoom.
+v7 zoom-buttons: adds bottom-right +, −, and Fit controls for main map and lower-level map. Based on v6 aux-note.
