@@ -258,28 +258,6 @@ button{
   }
 }
 
-
-/* v7d zoom/fit/scroll fixes */
-.mapViewport,
-.lowerViewport{
-  text-align:center;
-}
-.mapStage,
-.lowerStage{
-  display:inline-block;
-  vertical-align:top;
-  text-align:left;
-}
-.mapStage{
-  transition:width .12s ease;
-}
-.lowerStage{
-  transition:width .12s ease;
-}
-.info.show{
-  scroll-margin-top:88px;
-}
-
 </style>
 </head>
 <body>
@@ -328,7 +306,7 @@ button{
   <button id="zoomOutBtn" class="zoomCtl" type="button" aria-label="Zoom out">−</button>
   <button id="zoomFitBtn" class="zoomCtl zoomFit" type="button" aria-label="Fit map">Fit</button>
 </div>
-<div class="version">simple v7d zoom-scroll-info</div>
+<div class="version">simple v7e rollback-stable</div>
 
 <script>
 const DATA = {
@@ -1041,21 +1019,6 @@ const lowerModal = document.getElementById('lowerModal');
 let selectedId = null;
 let activeEl = null;
 
-
-function bringMainInfoIntoView(){
-  if(!info.classList.contains('show')) return;
-  setTimeout(() => {
-    info.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 40);
-}
-
-function bringLowerInfoIntoView(){
-  if(!lowerInfo.classList.contains('show')) return;
-  setTimeout(() => {
-    lowerInfo.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 40);
-}
-
 function addHotspot(room, parent){
   const el = document.createElement('div');
   el.className = 'hotspot';
@@ -1127,7 +1090,6 @@ function handleRoomTap(room, el){
   if(activeEl) activeEl.classList.add('active');
 
   showMainInfo(room);
-  bringMainInfoIntoView();
   results.classList.remove('show');
 
   if(room.action === 'open-lower-room'){
@@ -1140,7 +1102,6 @@ function handleRoomTap(room, el){
       if(activeEl) activeEl.classList.add('active');
       showMainInfo(targetRoom);
       showLowerInfo(targetRoom);
-      bringLowerInfoIntoView();
       setTimeout(() => activeEl && activeEl.scrollIntoView({behavior:'smooth', block:'center', inline:'center'}), 80);
     }
     return;
@@ -1154,7 +1115,6 @@ function handleRoomTap(room, el){
   if(room.level === 'Lower Level'){
     lowerModal.classList.add('open');
     showLowerInfo(room);
-    bringLowerInfoIntoView();
     return;
   }
 }
@@ -1194,7 +1154,6 @@ document.getElementById('closeLower').addEventListener('click', () => {
 
 render();
 
-
 const mainViewport = document.getElementById('mainViewport');
 const lowerViewport = document.getElementById('lowerViewport');
 const zoomInBtn = document.getElementById('zoomInBtn');
@@ -1203,35 +1162,27 @@ const zoomFitBtn = document.getElementById('zoomFitBtn');
 
 let mainZoom = 1;
 let lowerZoom = 1;
-const MIN_ZOOM = 0.25;
-const MAX_ZOOM = 3.5;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.2;
 
 function activeZoomContext(){
   return lowerModal.classList.contains('open') ? 'lower' : 'main';
 }
 
-function currentViewport(){
-  return activeZoomContext() === 'lower' ? lowerViewport : mainViewport;
-}
-
-function currentStage(){
-  return activeZoomContext() === 'lower' ? lowerStage : mainStage;
-}
-
-function applyStageZoom(stage, zoom, baseMax){
-  stage.style.maxWidth = 'none';
-  stage.style.width = (zoom * 100) + '%';
-
-  if(Math.abs(zoom - 1) < 0.001){
-    stage.style.maxWidth = baseMax;
+function applyStageZoom(stage, viewport, zoom, baseMax){
+  if(zoom <= 1.001){
     stage.style.width = '100%';
+    stage.style.maxWidth = baseMax;
+  } else {
+    stage.style.maxWidth = 'none';
+    stage.style.width = (zoom * 100) + '%';
   }
 }
 
 function applyZooms(){
-  applyStageZoom(mainStage, mainZoom, '1600px');
-  applyStageZoom(lowerStage, lowerZoom, '1000px');
+  applyStageZoom(mainStage, mainViewport, mainZoom, '1600px');
+  applyStageZoom(lowerStage, lowerViewport, lowerZoom, '1000px');
 }
 
 function setActiveZoom(newZoom){
@@ -1244,134 +1195,10 @@ function setActiveZoom(newZoom){
   applyZooms();
 }
 
-function availableHeightForFit(){
-  if(activeZoomContext() === 'lower'){
-    const head = document.querySelector('.modalHead');
-    const lowerInfoBox = document.getElementById('lowerInfo');
-    const h1 = head ? head.getBoundingClientRect().height : 0;
-    const h2 = (lowerInfoBox && lowerInfoBox.classList.contains('show')) ? lowerInfoBox.getBoundingClientRect().height : 0;
-    return Math.max(160, window.innerHeight - h1 - h2 - 18);
-  }
-
-  const header = document.querySelector('header');
-  const infoBox = document.getElementById('info');
-  const help = document.querySelector('.help');
-  const h1 = header ? header.getBoundingClientRect().height : 0;
-  const h2 = (infoBox && infoBox.classList.contains('show')) ? infoBox.getBoundingClientRect().height : 0;
-  const h3 = help ? help.getBoundingClientRect().height : 0;
-  return Math.max(160, window.innerHeight - h1 - h2 - h3 - 18);
-}
-
-function fitActiveMap(){
-  const viewport = currentViewport();
-  const stage = currentStage();
-
-  // Temporarily reset to natural responsive size to measure aspect ratio.
-  const oldWidth = stage.style.width;
-  const oldMax = stage.style.maxWidth;
-  stage.style.width = '100%';
-  stage.style.maxWidth = activeZoomContext() === 'lower' ? '1000px' : '1600px';
-
-  const rect = stage.getBoundingClientRect();
-  const ratio = rect.height / Math.max(1, rect.width);
-  const heightAtFullViewportWidth = viewport.clientWidth * ratio;
-  const fitZoom = Math.max(MIN_ZOOM, Math.min(1, availableHeightForFit() / heightAtFullViewportWidth));
-
-  stage.style.width = oldWidth;
-  stage.style.maxWidth = oldMax;
-
-  if(activeZoomContext() === 'lower'){
-    lowerZoom = fitZoom;
-  } else {
-    mainZoom = fitZoom;
-  }
-
-  applyZooms();
-  viewport.scrollTo({left:0, top:0, behavior:'smooth'});
-}
-
-zoomInBtn.addEventListener('click', () => {
-  const current = activeZoomContext() === 'lower' ? lowerZoom : mainZoom;
-  setActiveZoom(current + ZOOM_STEP);
-});
-
-zoomOutBtn.addEventListener('click', () => {
-  const current = activeZoomContext() === 'lower' ? lowerZoom : mainZoom;
-  setActiveZoom(current - ZOOM_STEP);
-});
-
-zoomFitBtn.addEventListener('click', () => {
-  fitActiveMap();
-});
-
-function wireWheelScroll(viewport){
-  if(!viewport) return;
-  viewport.addEventListener('wheel', function(e){
-    if(e.ctrlKey) return; // preserve browser zoom gestures
-
-    const context = viewport === lowerViewport ? 'lower' : 'main';
-    const z = context === 'lower' ? lowerZoom : mainZoom;
-
-    // At fitted/default scale, mouse wheel should scroll the page/modal, not get trapped on the map.
-    if(z <= 1.01){
-      e.preventDefault();
-      if(context === 'lower'){
-        lowerModal.scrollBy({top:e.deltaY, left:0, behavior:'auto'});
-      } else {
-        window.scrollBy({top:e.deltaY, left:0, behavior:'auto'});
-      }
-    }
-  }, {passive:false});
-}
-
-wireWheelScroll(mainViewport);
-wireWheelScroll(lowerViewport);
-
-applyZooms();
-
-}
-
 function currentViewport(){
   return activeZoomContext() === 'lower' ? lowerViewport : mainViewport;
 }
 
-function currentStage(){
-  return activeZoomContext() === 'lower' ? lowerStage : mainStage;
-}
-
-function availableHeightForFit(){
-  if(activeZoomContext() === 'lower'){
-    const head = document.querySelector('.modalHead');
-    const lowerInfoBox = document.getElementById('lowerInfo');
-    const h1 = head ? head.getBoundingClientRect().height : 0;
-    const h2 = (lowerInfoBox && lowerInfoBox.classList.contains('show')) ? lowerInfoBox.getBoundingClientRect().height : 0;
-    return Math.max(180, window.innerHeight - h1 - h2 - 24);
-  }
-  const header = document.querySelector('header');
-  const infoBox = document.getElementById('info');
-  const help = document.querySelector('.help');
-  const h1 = header ? header.getBoundingClientRect().height : 0;
-  const h2 = (infoBox && infoBox.classList.contains('show')) ? infoBox.getBoundingClientRect().height : 0;
-  const h3 = help ? help.getBoundingClientRect().height : 0;
-  return Math.max(180, window.innerHeight - h1 - h2 - h3 - 24);
-}
-
-function fitActiveMap(){
-  const viewport = currentViewport();
-  const stage = currentStage();
-  const rect = stage.getBoundingClientRect();
-  const ratio = rect.height / rect.width;
-  const heightAtZoom1 = viewport.clientWidth * ratio;
-  const fitZoom = Math.max(MIN_ZOOM, Math.min(1, availableHeightForFit() / heightAtZoom1));
-  if(activeZoomContext() === 'lower'){
-    lowerZoom = fitZoom;
-  } else {
-    mainZoom = fitZoom;
-  }
-  applyZooms();
-  viewport.scrollTo({left:0, top:0, behavior:'smooth'});
-}
-
 zoomInBtn.addEventListener('click', () => {
   const current = activeZoomContext() === 'lower' ? lowerZoom : mainZoom;
   setActiveZoom(current + ZOOM_STEP);
@@ -1383,7 +1210,14 @@ zoomOutBtn.addEventListener('click', () => {
 });
 
 zoomFitBtn.addEventListener('click', () => {
-  fitActiveMap();
+  if(activeZoomContext() === 'lower'){
+    lowerZoom = 1;
+  } else {
+    mainZoom = 1;
+  }
+  applyZooms();
+  const vp = currentViewport();
+  vp.scrollTo({left:0, top:0, behavior:'smooth'});
 });
 
 applyZooms();

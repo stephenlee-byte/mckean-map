@@ -1,1 +1,1 @@
-v7d: fixes zoom out from default, improves Fit to fit the whole map vertically when possible, scrolls hotspot info into view, and lets mouse wheel scroll over the map.
+v7e rollback-stable: rolled back to last working v7b click/zoom logic. Only changed hotspot data to stop Main Gym access from overlapping Auxiliary Gym.
