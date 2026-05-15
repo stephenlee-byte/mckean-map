@@ -36,6 +36,169 @@ button.secondary{background:#64748b}
 .lowerStage{position:relative;width:100%;max-width:1000px;aspect-ratio:4/3;margin:0 auto;background-image:url('mckean-map-simple-v3.jpg?v=1778668346');background-repeat:no-repeat;background-size:205%;background-position:31% 84%}
 .lowerStage .hotspot{z-index:20}
 .version{position:fixed;right:6px;bottom:6px;z-index:4000;background:rgba(36,52,71,.75);color:white;font-size:10px;padding:3px 6px;border-radius:999px;pointer-events:none}
+
+/* v6 responsive layout */
+:root{
+  --header-bg:#243447;
+  --button-blue:#2563eb;
+  --button-gray:#64748b;
+  --max-map-width:1600px;
+}
+html,body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+body{
+  min-height:100svh;
+}
+header{
+  padding:clamp(8px, 1.8vw, 14px);
+}
+.controls{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:clamp(6px, 1.4vw, 12px);
+}
+input{
+  font-size:clamp(16px, 2.2vw, 20px);
+  padding:clamp(10px, 1.8vw, 14px);
+}
+button{
+  font-size:clamp(14px, 1.8vw, 18px);
+  padding:clamp(9px, 1.5vw, 14px) clamp(10px, 2vw, 18px);
+}
+.info,.lowerInfo{
+  font-size:clamp(15px, 2.2vw, 21px);
+}
+.note{
+  font-size:clamp(14px, 1.9vw, 18px);
+}
+.help{
+  font-size:clamp(12px, 1.7vw, 16px);
+}
+.mapStage{
+  width:min(100vw, var(--max-map-width));
+}
+.mapStage img{
+  width:100%;
+  height:auto;
+}
+.hotspot{
+  min-width:18px;
+  min-height:18px;
+}
+.hotspot:focus-visible{
+  outline:3px solid #2563eb;
+  outline-offset:2px;
+}
+.result{
+  font-size:clamp(14px, 1.8vw, 18px);
+}
+.modalHead{
+  padding:clamp(8px, 1.8vw, 14px);
+}
+.lowerStage{
+  width:min(100vw, 1000px);
+}
+
+/* Phones */
+@media (max-width: 640px){
+  .controls{
+    grid-template-columns:1fr auto auto;
+  }
+  input{
+    font-size:16px;
+  }
+  button{
+    min-height:44px;
+    border-radius:11px;
+  }
+  .info{
+    top:64px;
+  }
+  .lowerInfo{
+    top:62px;
+  }
+  .help{
+    padding:8px 10px;
+  }
+  .footerSpace{
+    height:46vh;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width: 390px){
+  .controls{
+    gap:5px;
+  }
+  button{
+    padding:8px 8px;
+    font-size:14px;
+  }
+  input{
+    padding:10px;
+  }
+}
+
+/* Tablets and desktops */
+@media (min-width: 900px){
+  body{
+    background:#f8fafc;
+  }
+  main{
+    max-width:1500px;
+    margin:0 auto;
+    background:#fff;
+    width:100%;
+  }
+  .info,.results{
+    max-width:1500px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+}
+
+/* Desktop wide layout */
+@media (min-width: 1200px){
+  .mapStage{
+    width:min(92vw, var(--max-map-width));
+  }
+  .footerSpace{
+    height:18vh;
+  }
+}
+
+/* Landscape mobile */
+@media (orientation: landscape) and (max-height: 520px){
+  header{
+    padding:6px 8px;
+  }
+  input,button{
+    min-height:38px;
+    padding:7px 10px;
+    font-size:14px;
+  }
+  .help{
+    display:none;
+  }
+  .info,.lowerInfo{
+    padding:7px 10px;
+  }
+  .note{
+    margin:3px 0 0;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce){
+  *{
+    scroll-behavior:auto!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -55,7 +218,7 @@ button.secondary{background:#64748b}
 <section id="results" class="results"></section>
 
 <main>
-  <div class="help">Simple tap version. Pinch the page to zoom. Pull down normally to refresh.</div>
+  <div class="help">Tap or click a room area. Pinch on mobile or use browser zoom on desktop.</div>
   <div class="mapStage" id="mainStage">
     <img src="mckean-map-simple-v3.jpg?v=1778668346" alt="Thomas McKean High School map">
   </div>
@@ -75,7 +238,7 @@ button.secondary{background:#64748b}
   <div class="footerSpace"></div>
 </div>
 
-<div class="version">simple v5d pool-fixed</div>
+<div class="version">simple v6 responsive</div>
 
 <script>
 const DATA = {

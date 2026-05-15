@@ -1,1 +1,1 @@
-v5d pool-fixed: Swimming Pool hotspot reduced so it does not cover the locker rooms.
+v6 responsive: based on v5d pool-fixed. Improved for mobile, tablets, desktops, landscape phones, keyboard focus, and browser zoom.
