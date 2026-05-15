@@ -1,1 +1,1 @@
-v8b: Fit recenters the map while keeping the current hotspot selected and its info visible. Based on v8 clean.
+v8c: Fit keeps the current selection and centers the full map below the sticky search/info area so the map is not hidden behind it.
