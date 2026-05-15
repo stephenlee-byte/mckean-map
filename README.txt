@@ -1,1 +1,1 @@
-v8c: Fit keeps the current selection and centers the full map below the sticky search/info area so the map is not hidden behind it.
+v8d no-jump: hotspot clicks no longer auto-scroll on desktop/tablet, preventing the map from jumping underneath the info panel. Mobile still scrolls info into view.
