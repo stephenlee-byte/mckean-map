@@ -1,1 +1,1 @@
-v7 zoom-buttons: adds bottom-right +, −, and Fit controls for main map and lower-level map. Based on v6 aux-note.
+v7d: fixes zoom out from default, improves Fit to fit the whole map vertically when possible, scrolls hotspot info into view, and lets mouse wheel scroll over the map.
