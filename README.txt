@@ -1,1 +1,1 @@
-v8e mobile-no-jump: removed mobile auto-scroll when hotspots are tapped so the map no longer jumps under the info panel. Fit behavior remains from v8c/v8d.
+v8f: default open in Fit view and move + / − / Fit controls higher on the right side. Based on v8e mobile-no-jump.
