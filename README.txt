@@ -1,1 +1,1 @@
-v11b exact-hotspots: 67 individual main-floor room hotspots use true room-shaped SVG polygons extracted from the floor plan; blue/green routes are registered from the user markup and simplified into clean straight vector segments; search/fit/mobile behavior retained from v9.
+v12 unified-ui: search/header/info/map scale together with main zoom; search results overlay instead of shifting map; touching the map dismisses search/keyboard without jumping; keyboard resize no longer triggers Fit.
