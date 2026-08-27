@@ -1,8 +1,1 @@
-v8g: search fixed with live visible results, safe aliases, exact Enter match, and no-result feedback. Based on v8f default-fit.
-
-Version: simple v9 all-rooms
-Search now includes individual hotspots for all rooms, including D10, D11, D12, and individual classroom boxes instead of cluster-only search.
-
-
-Version: simple v10c clean-routes
-Blue/green corridor lines are thin SVG vectors derived from the user markup and scale with the map.
+v11b exact-hotspots: 67 individual main-floor room hotspots use true room-shaped SVG polygons extracted from the floor plan; blue/green routes are registered from the user markup and simplified into clean straight vector segments; search/fit/mobile behavior retained from v9.
