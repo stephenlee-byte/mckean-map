@@ -2,3 +2,7 @@ v8g: search fixed with live visible results, safe aliases, exact Enter match, an
 
 Version: simple v9 all-rooms
 Search now includes individual hotspots for all rooms, including D10, D11, D12, and individual classroom boxes instead of cluster-only search.
+
+
+Version: simple v10c clean-routes
+Blue/green corridor lines are thin SVG vectors derived from the user markup and scale with the map.
