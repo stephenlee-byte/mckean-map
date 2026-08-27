@@ -1,1 +1,1 @@
-v8f: default open in Fit view and move + / − / Fit controls higher on the right side. Based on v8e mobile-no-jump.
+v8g: search fixed with live visible results, safe aliases, exact Enter match, and no-result feedback. Based on v8f default-fit.
