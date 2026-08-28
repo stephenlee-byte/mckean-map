@@ -1,16 +1,13 @@
 Thomas McKean Interactive Map
 
-Version: simple v13 complete-update
+Version: simple v16 separated-routes
 
-Upload ALL files in this folder to the root of the GitHub repository and replace files with the same names.
+Includes:
+- Individual searchable rooms
+- Exact polygon hotspots where available
+- Main/lower level navigation
+- Unified zoom and Fit behavior
+- Mobile-friendly search/results behavior
+- Blue and green route overlays with separated segments (no connected junction blobs)
 
-Files:
-- index.html — complete app, search, zoom/Fit, exact polygon hotspots, route lines
-- mckean-map-v8.jpg — map image
-- manifest.webmanifest — web app manifest
-- README.txt — this file
-
-After committing on GitHub, open the site with ?v=13 or hard refresh to bypass cached older files.
-
-
-v14: Keeps original accurate floor plan and polygon hotspots; routes redrawn as thicker, exact wall-aligned SVG geometry matching the approved clean style.
+Upload all files in this folder to the root of the GitHub mckean-map repository.
