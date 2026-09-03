@@ -1,10 +1,23 @@
-Thomas McKean Interactive Map — v19 schedule-map
+Thomas McKean Interactive Map — v20b
 
-Full-screen map app with floating search, floor switching, pinch/drag/zoom, exact room hotspots, and bottom-sheet room details.
+Upload every file in this folder to the root of the GitHub Pages repository:
+  index.html
+  mckean-map-v8.jpg
+  static-routes.png
+  manifest.webmanifest
 
-V19 adds room schedules from the 2026–2027 Master Schedule. Each mapped room shows A1–A4 and B1–B4 teacher/course assignments. Multiple scheduled occupants are preserved. Rooms without a regular assignment are marked accordingly.
+What this version includes
+- United-style full-screen map interface.
+- Search by room/location.
+- Working direct hotspot taps from v19b.
+- 2026–2027 master-schedule information in room cards.
+- Pinch zoom, drag/pan, mouse-wheel zoom, + / - / Fit controls.
+- Main/Lower floor switcher.
+- Indoor directions: select a room, tap Start here, then tap/search the destination.
+- Purple walking route with start/end markers and automatic route fitting.
+- Two-part Main Floor / Lower Level directions when a route crosses floors.
+- Static blue/green markings aligned to the approved floor-plan preview.
+- Added blue markings on the B-room faces that face the C-room row.
+- Static blue/green sections stay visually separate rather than merging at corridor corners.
 
-Schedule data is embedded as a static snapshot from the master schedule. Regenerate this package if the master schedule changes.
-
-
-v19b: fixed direct map hotspot tapping by separating tap detection from drag/pinch pointer capture. Master schedule retained.
+The schedule is an embedded snapshot. If the master schedule changes, rebuild the schedule data in the map.
