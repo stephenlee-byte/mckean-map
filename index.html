@@ -2,80 +2,84 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#243447">
-<title>Thomas McKean Map v17</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0f2740">
+<title>Thomas McKean Interactive Map</title>
 <style>
+:root{--nav:#0f2740;--blue:#2563eb;--sheet:#fff;--text:#0f172a;--muted:#64748b;}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827}
-body{min-height:100vh;overflow-y:auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
-header{position:sticky;top:0;z-index:1000;background:#243447;color:#fff;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);isolation:isolate}
-.controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;max-width:1200px;margin:0 auto}
-input{min-width:0;font-size:18px;padding:12px;border:1px solid #cbd5e1;border-radius:12px}
-button{border:0;border-radius:12px;background:#2563eb;color:#fff;font-weight:800;padding:10px 12px;min-height:46px;font-size:16px;cursor:pointer}
-button.secondary{background:#64748b}
-.info{display:none;position:sticky;top:68px;z-index:950;background:#243447;color:#fff;padding:10px 14px;border-top:1px solid rgba(255,255,255,.18);box-shadow:0 2px 10px rgba(0,0,0,.22)}
-.info.show{display:block}
-.info b,.lowerInfo b{background:rgba(255,255,255,.16);padding:2px 6px;border-radius:5px}
-.note{margin:6px 0 0;line-height:1.35;font-size:15px}
-.results{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);width:min(1200px,calc(100% - 20px));z-index:1100;background:#243447;color:#fff;padding:8px;gap:6px;max-height:min(42vh,300px);overflow:auto;box-shadow:0 8px 20px rgba(0,0,0,.28);border-radius:0 0 12px 12px}
-.results.show{display:grid}
-.result{text-align:left;color:#fff;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);border-radius:10px;padding:9px}
-.help{padding:10px 12px;color:#475569;font-size:13px;text-align:center}
-.mapWrap{width:100%;overflow:visible;text-align:center}
-.mapStage{position:relative;width:100%;max-width:1600px;margin:0 auto;background:#fff;text-align:left;display:inline-block;vertical-align:top}
-.mapStage img{width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
-.mapOverlaySvg{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;overflow:visible}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:var(--text);touch-action:none}
+button,input{font:inherit}
+#app{position:fixed;inset:0;overflow:hidden;background:#f8fafc}
+#mapViewport{position:absolute;inset:0;overflow:hidden;background:#fff;touch-action:none;cursor:grab}
+#mapViewport.dragging{cursor:grabbing}
+.mapStage{position:absolute;left:0;top:0;width:1448px;height:1086px;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-select:none}
+.mapStage img{position:absolute;inset:0;width:1448px;height:1086px;display:block;pointer-events:none;-webkit-user-drag:none;user-select:none}
+#mainSvg{position:absolute;inset:0;width:1448px;height:1086px;overflow:visible;pointer-events:none}
 .routeLine{fill:none;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:8;shape-rendering:geometricPrecision;pointer-events:none}
-.routeBlue{stroke:#146ff5}
-.routeGreen{stroke:#08ad35}
+.routeBlue{stroke:#146ff5} .routeGreen{stroke:#08ad35}
 .svgHotspot{fill:transparent;stroke:transparent;stroke-width:3;pointer-events:all;cursor:pointer}
-.svgHotspot.active{fill:rgba(249,115,22,.22);stroke:#f97316}
-.hotspot{position:absolute;z-index:10;border:2px solid transparent;background:rgba(255,255,255,0.001);border-radius:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(249,115,22,.25)}
-.hotspot.active{border-color:#f97316;background:rgba(249,115,22,.22)}
-.footerSpace{height:45vh}
-.modal{display:none;position:fixed;inset:0;z-index:2000;background:#fff;overflow:auto;-webkit-overflow-scrolling:touch}
-.modal.open{display:block}
-.modalHead{position:sticky;top:0;z-index:2010;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#243447;color:#fff;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
-.lowerInfo{display:none;position:sticky;top:66px;z-index:2005;background:#243447;color:#fff;padding:10px 14px;border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18)}
-.lowerInfo.show{display:block}
-.lowerWrap{width:100%;overflow:visible;text-align:center}
-.lowerStage{position:relative;width:100%;max-width:1000px;aspect-ratio:4/3;margin:0 auto;background-image:url('mckean-map-v8.jpg?v=1778852366');background-repeat:no-repeat;background-size:205%;background-position:31% 84%;display:inline-block;vertical-align:top;text-align:left}
-.lowerStage .hotspot{z-index:20}
-.zoomDock{position:fixed;right:16px;top:62%;transform:translateY(-50%);bottom:auto;z-index:3000;display:flex;flex-direction:column;gap:10px}
-.zoomCtl{width:62px;min-width:62px;min-height:62px;height:62px;border-radius:999px;font-size:30px;line-height:1;padding:0;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.zoomFit{font-size:22px}
-.version{position:fixed;right:6px;bottom:6px;z-index:4000;background:rgba(36,52,71,.75);color:white;font-size:10px;padding:3px 6px;border-radius:999px;pointer-events:none}
-@media(max-width:640px){input{font-size:16px}button{font-size:14px;padding:9px 10px}.zoomCtl{width:56px;min-width:56px;height:56px;min-height:56px;font-size:28px}.zoomFit{font-size:20px}.zoomDock{top:66%;right:14px}}
-@media(min-width:900px){body{background:#f8fafc}main{max-width:1600px;margin:0 auto;background:#fff}.info,.results{max-width:1600px;margin-left:auto;margin-right:auto}}
-
-/* v8e mobile no-jump fix */
-@media(max-width:700px){
-  .info.show{
-    margin-bottom:6px;
-  }
-  .lowerInfo.show{
-    margin-bottom:6px;
-  }
-}
-
-.searchEmpty{padding:10px 12px;color:#e2e8f0;font-size:15px}.result strong{font-size:1.05em}.result span{opacity:.9}
-/* v12 unified interface */
-.appShell{width:100%;margin:0 auto;transform-origin:top center;}
-.mapStage,.mapOverlaySvg,.svgHotspot,.hotspot{touch-action:pan-x pan-y pinch-zoom;}
-#search{touch-action:manipulation;}
-@media(max-width:700px){
-  .results{width:calc(100% - 12px);max-height:34vh;}
+.svgHotspot.active{fill:rgba(249,115,22,.24);stroke:#f97316;stroke-width:4}
+.rectHotspot{position:absolute;border:3px solid transparent;background:rgba(255,255,255,.001);cursor:pointer;touch-action:none}
+.rectHotspot.active{border-color:#f97316;background:rgba(249,115,22,.22);border-radius:4px}
+#lowerStage{display:none;width:1000px;height:750px;background-image:url('mckean-map-v8.jpg');background-repeat:no-repeat;background-size:205%;background-position:31% 84%;background-color:#fff}
+#lowerStage.active{display:block}
+#mainStage.hidden{display:none}
+.topBar{position:absolute;z-index:100;top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;display:flex;gap:8px;align-items:center;pointer-events:none}
+.searchWrap{position:relative;flex:1;max-width:760px;pointer-events:auto}
+#search{width:100%;height:54px;padding:0 48px 0 18px;border:1px solid rgba(15,39,64,.18);border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(15,23,42,.18);font-size:18px;outline:none}
+#search:focus{border-color:#60a5fa;box-shadow:0 8px 28px rgba(37,99,235,.2)}
+#searchClear{position:absolute;right:8px;top:7px;width:40px;height:40px;border:0;border-radius:50%;background:#e2e8f0;color:#334155;font-size:22px;display:none}
+#searchClear.show{display:block}
+.floorSwitch{display:flex;padding:4px;background:rgba(15,39,64,.94);border-radius:16px;box-shadow:0 8px 24px rgba(15,23,42,.2);pointer-events:auto}
+.floorSwitch button{height:46px;padding:0 14px;border:0;border-radius:12px;background:transparent;color:#cbd5e1;font-weight:800}
+.floorSwitch button.active{background:#fff;color:#0f2740}
+.results{position:absolute;left:0;right:0;top:62px;max-height:min(46vh,420px);overflow:auto;background:rgba(255,255,255,.985);border-radius:16px;box-shadow:0 12px 30px rgba(15,23,42,.24);display:none;padding:6px}
+.results.show{display:block}
+.result{width:100%;text-align:left;border:0;background:transparent;border-radius:12px;padding:11px 12px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.result:hover,.result:active{background:#eff6ff}
+.result .rname{font-weight:800;font-size:16px} .result .rmeta{font-size:13px;color:#64748b;text-align:right}
+.noResults{padding:14px;color:#64748b}
+.zoomDock{position:absolute;z-index:90;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.zoomDock button{pointer-events:auto;width:54px;height:54px;border:0;border-radius:50%;background:#2563eb;color:#fff;font-weight:800;font-size:28px;box-shadow:0 8px 22px rgba(37,99,235,.32)}
+.zoomDock button.fit{font-size:17px}
+.locationHint{position:absolute;z-index:75;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:9px 13px;border-radius:999px;background:rgba(15,39,64,.88);color:#fff;font-size:13px;pointer-events:none;transition:opacity .25s}
+.bottomSheet{position:absolute;z-index:120;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.985);border-radius:22px;box-shadow:0 16px 40px rgba(15,23,42,.28);padding:12px 16px 16px;transform:translateY(calc(100% + 30px));transition:transform .22s ease;pointer-events:auto;max-width:760px;margin:0 auto}
+.bottomSheet.open{transform:translateY(0)}
+.sheetGrab{width:42px;height:5px;background:#cbd5e1;border-radius:999px;margin:0 auto 9px}
+.sheetTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sheetTitle{font-size:22px;font-weight:900;line-height:1.1}
+.sheetMeta{margin-top:4px;color:#64748b;font-size:14px}
+.sheetNote{margin:10px 0 0;font-size:15px;line-height:1.35;color:#334155}
+#sheetClose{width:38px;height:38px;border:0;border-radius:50%;background:#e2e8f0;color:#334155;font-size:22px;flex:0 0 auto}
+.sheetActions{display:flex;gap:8px;margin-top:12px}
+.sheetActions button{border:0;border-radius:12px;height:42px;padding:0 14px;font-weight:800}
+#recenterSelected{background:#2563eb;color:#fff}
+#clearSelected{background:#e2e8f0;color:#334155}
+.lowerHeader{display:none;position:absolute;z-index:85;top:calc(76px + env(safe-area-inset-top));left:14px;padding:8px 12px;border-radius:999px;background:rgba(15,39,64,.9);color:#fff;font-weight:800;pointer-events:none}
+.lowerHeader.show{display:block}
+.version{position:absolute;right:8px;bottom:4px;z-index:10;font-size:9px;color:#64748b;pointer-events:none}
+@media(max-width:640px){
+  .topBar{left:8px;right:8px;gap:6px}
+  #search{height:50px;border-radius:16px;font-size:16px}
+  .floorSwitch button{height:42px;padding:0 10px;font-size:13px}
+  .results{top:56px}
+  .zoomDock{right:12px;top:54%}
+  .zoomDock button{width:50px;height:50px;font-size:25px}
+  .zoomDock button.fit{font-size:16px}
+  .bottomSheet{left:8px;right:8px;border-radius:20px}
+  .sheetTitle{font-size:20px}
+  .locationHint{bottom:calc(18px + env(safe-area-inset-bottom));font-size:12px}
 }
 </style>
 </head>
 <body>
-<div id="appShell" class="appShell">
-<header><div class="controls"><input id="search" placeholder="Search room..." autocomplete="off"><button id="lowerBtn" type="button">Lower</button><button id="clearBtn" class="secondary" type="button">Clear</button></div><section id="results" class="results"></section></header>
-<section id="info" class="info"><div><b id="name">—</b> <span id="meta"></span></div><p id="note" class="note"></p></section>
-<main><div class="help">Tap/click a location. + / − zoom the entire map interface together. Fit recenters everything.</div><div class="mapWrap" id="mainWrap"><div class="mapStage" id="mainStage"><img src="mckean-map-v8.jpg?v=1778852366" alt="Thomas McKean High School map"><svg id="mainSvg" class="mapOverlaySvg" viewBox="0 0 1448 1086" preserveAspectRatio="none" aria-hidden="false">
-<g id="routes" aria-hidden="true">
-  <!-- BLUE: each upper cluster is isolated; no connector segments between clusters -->
+<div id="app">
+  <div id="mapViewport" aria-label="Interactive school map">
+    <div id="mainStage" class="mapStage">
+      <img src="mckean-map-v8.jpg" alt="Thomas McKean High School map">
+      <svg id="mainSvg" viewBox="0 0 1448 1086" aria-hidden="false">
+        <g id="routes" aria-hidden="true"><!-- BLUE: each upper cluster is isolated; no connector segments between clusters -->
   <path class="routeLine routeBlue" d="M90 101 L90 180 L171 226 L234 184 L234 101"/>
   <path class="routeLine routeBlue" d="M288 98 L288 173 L351 219 L417 177 L417 93"/>
   <path class="routeLine routeBlue" d="M476 104 L476 180 L549 223 L610 182 L610 102"/>
@@ -99,220 +103,172 @@ button.secondary{background:#64748b}
   <path class="routeLine routeGreen" d="M443 430 L443 505"/>
   <path class="routeLine routeGreen" d="M480 419 L542 381 L616 424"/>
   <path class="routeLine routeGreen" d="M476 430 L476 509"/>
-  <path class="routeLine routeGreen" d="M616 430 L616 505"/>
-</g><g id="roomPolys"></g></svg></div></div><div class="footerSpace"></div></main>
+  <path class="routeLine routeGreen" d="M616 430 L616 505"/></g>
+        <g id="roomPolys"></g>
+      </svg>
+    </div>
+    <div id="lowerStage" class="mapStage"></div>
+  </div>
+
+  <div class="topBar">
+    <div class="searchWrap">
+      <input id="search" placeholder="Search room or place..." autocomplete="off" inputmode="search">
+      <button id="searchClear" aria-label="Clear search">×</button>
+      <div id="results" class="results"></div>
+    </div>
+    <div class="floorSwitch" aria-label="Floor selector">
+      <button id="mainFloorBtn" class="active">Main</button>
+      <button id="lowerFloorBtn">Lower</button>
+    </div>
+  </div>
+
+  <div id="lowerHeader" class="lowerHeader">Lower Level</div>
+
+  <div class="zoomDock">
+    <button id="zoomInBtn" aria-label="Zoom in">+</button>
+    <button id="zoomOutBtn" aria-label="Zoom out">−</button>
+    <button id="fitBtn" class="fit" aria-label="Fit map">Fit</button>
+  </div>
+
+  <div id="hint" class="locationHint">Pinch to zoom • Drag to move • Search for a room</div>
+
+  <div id="sheet" class="bottomSheet" aria-live="polite">
+    <div class="sheetGrab"></div>
+    <div class="sheetTop">
+      <div>
+        <div id="sheetTitle" class="sheetTitle"></div>
+        <div id="sheetMeta" class="sheetMeta"></div>
+      </div>
+      <button id="sheetClose" aria-label="Close">×</button>
+    </div>
+    <div id="sheetNote" class="sheetNote"></div>
+    <div class="sheetActions">
+      <button id="recenterSelected">Center on map</button>
+      <button id="clearSelected">Clear</button>
+    </div>
+  </div>
+  <div class="version">v18 map-app</div>
 </div>
-<div class="modal" id="lowerModal"><div class="modalHead"><strong>Lower Level</strong><button id="closeLower" class="secondary" type="button">Back to Main Map</button></div><section id="lowerInfo" class="lowerInfo"><div><b id="lowerName">—</b> <span id="lowerMeta"></span></div><p id="lowerNote" class="note"></p></section><div class="lowerWrap" id="lowerWrap"><div class="lowerStage" id="lowerStage"></div></div><div class="footerSpace"></div></div>
-<div class="zoomDock" aria-label="Map zoom controls"><button id="zoomInBtn" class="zoomCtl" type="button" aria-label="Zoom in">+</button><button id="zoomOutBtn" class="zoomCtl" type="button" aria-label="Zoom out">−</button><button id="zoomFitBtn" class="zoomCtl zoomFit" type="button" aria-label="Fit map">Fit</button></div><div class="version">simple v17 isolated-routes</div>
 <script>
-const DATA = {"mainHotspots":[{"id":"C64","type":"Classroom","level":"Main Floor","aliases":["C64"],"x":6.3,"y":7.2,"w":3.0,"h":8.5,"note":"Main floor classroom in the C60 cluster.","poly":[[122,81],[143,112],[135,151],[90,180],[90,101]]},{"id":"C62","type":"Classroom","level":"Main Floor","aliases":["C62"],"x":9.2,"y":4.2,"w":3.2,"h":6.0,"note":"Main floor classroom in the C60 cluster.","poly":[[206,77],[186,109],[149,109],[129,79],[166,56]]},{"id":"C60","type":"Classroom","level":"Main Floor","aliases":["C60"],"x":9.0,"y":10.2,"w":3.6,"h":6.6,"note":"Main floor classroom in the C60 cluster.","poly":[[169,107],[195,123],[195,151],[167,167],[141,151],[141,123]]},{"id":"C61","type":"Classroom","level":"Main Floor","aliases":["C61"],"x":12.1,"y":9.2,"w":3.0,"h":8.0,"note":"Main floor classroom in the C60 cluster.","poly":[[213,81],[242,98],[242,178],[201,151],[192,112]]},{"id":"C65","type":"Classroom","level":"Main Floor","aliases":["C65"],"x":8.2,"y":15.0,"w":4.0,"h":5.6,"note":"Main floor classroom in the C60 cluster.","poly":[[96,185],[140,158],[164,173],[165,224]]},{"id":"C66","type":"Classroom","level":"Main Floor","aliases":["C66"],"x":11.0,"y":14.9,"w":2.2,"h":4.2,"note":"Main floor classroom in the C60 cluster.","poly":[[238,184],[171,226],[171,173],[199,158]]},{"id":"C57","type":"Classroom","level":"Main Floor","aliases":["C57"],"x":18.5,"y":4.1,"w":4.0,"h":5.6,"note":"Main floor classroom in the C50 cluster.","poly":[[351,56],[351,98],[324,114],[286,92]]},{"id":"C53","type":"Classroom","level":"Main Floor","aliases":["C53"],"x":22.0,"y":4.2,"w":3.7,"h":5.8,"note":"Main floor classroom in the C50 cluster.","poly":[[357,55],[423,93],[387,114],[357,97]]},{"id":"C55","type":"Classroom","level":"Main Floor","aliases":["C55"],"x":18.3,"y":9.2,"w":3.5,"h":7.8,"note":"Main floor classroom in the C50 cluster.","poly":[[282,98],[320,120],[320,151],[281,173]]},{"id":"C52","type":"Classroom","level":"Main Floor","aliases":["C52"],"x":24.1,"y":9.0,"w":3.6,"h":8.0,"note":"Main floor classroom in the C50 cluster.","poly":[[426,99],[427,172],[389,151],[388,121]]},{"id":"C56","type":"Classroom","level":"Main Floor","aliases":["C56"],"x":18.8,"y":15.2,"w":4.4,"h":5.0,"note":"Main floor classroom in the C50 cluster.","poly":[[285,179],[323,157],[350,172],[351,219]]},{"id":"C50","type":"Classroom","level":"Main Floor","aliases":["C50"],"x":22.9,"y":15.5,"w":2.0,"h":3.8,"note":"Main floor classroom in the C50 cluster.","poly":[[370,166],[392,200],[358,220],[357,174]]},{"id":"C51","type":"Classroom","level":"Main Floor","aliases":["C51"],"x":24.7,"y":15.0,"w":2.5,"h":4.8,"note":"Main floor classroom in the C50 cluster.","poly":[[376,163],[386,157],[425,179],[398,195]]},{"id":"Art Room","type":"Facility","level":"Main Floor","aliases":["Art Room","Art"],"x":31.7,"y":7.0,"w":5.8,"h":11.4,"note":"Main floor Art Room."},{"id":"TV/Radio Room","type":"Facility","level":"Main Floor","aliases":["TV/Radio Room","TV Room","Radio Room"],"x":37.0,"y":6.5,"w":5.4,"h":11.8,"note":"Main floor TV/Radio Room."},{"id":"C31","type":"Classroom","level":"Main Floor","aliases":["C31"],"x":45.2,"y":4.8,"w":4.8,"h":6.4,"note":"Main floor classroom in the C31 cluster.","poly":[[663,88],[715,58],[778,95],[779,120],[689,114]]},{"id":"C33","type":"Classroom","level":"Main Floor","aliases":["C33"],"x":44.4,"y":10.6,"w":4.1,"h":7.8,"note":"Main floor classroom in the C31 cluster.","poly":[[656,92],[686,121],[698,164],[677,196],[650,180],[650,96]]},{"id":"AD","type":"Administrative","level":"Main Floor","aliases":["AD"],"x":50.1,"y":11.0,"w":3.0,"h":4.6,"note":"Main floor office in the C31 cluster."},{"id":"C30","type":"Classroom","level":"Main Floor","aliases":["C30"],"x":47.2,"y":16.0,"w":4.6,"h":5.2,"note":"Main floor classroom in the C31 cluster.","poly":[[779,156],[779,180],[716,220],[683,199],[704,168],[745,156]]},{"id":"C22","type":"Classroom","level":"Main Floor","aliases":["C22"],"x":55.9,"y":4.7,"w":4.6,"h":5.8,"note":"Main floor classroom in the C22 cluster.","poly":[[908,77],[889,107],[850,115],[815,94],[876,58]]},{"id":"C26","type":"Classroom","level":"Main Floor","aliases":["C26"],"x":55.5,"y":11.0,"w":3.0,"h":3.8,"note":"Main floor classroom in the C22 cluster.","poly":[[845,128],[845,153],[812,153],[812,128]]},{"id":"C20","type":"Classroom","level":"Main Floor","aliases":["C20"],"x":60.4,"y":10.6,"w":3.9,"h":8.4,"note":"Main floor classroom in the C22 cluster.","poly":[[914,80],[943,97],[943,180],[919,195],[896,165],[895,110]]},{"id":"C25","type":"Classroom","level":"Main Floor","aliases":["C25"],"x":57.2,"y":16.0,"w":4.8,"h":4.5,"note":"Main floor classroom in the C22 cluster.","poly":[[812,159],[848,159],[890,167],[912,199],[877,221],[812,181]]},{"id":"C13","type":"Classroom","level":"Main Floor","aliases":["C13"],"x":67.2,"y":4.5,"w":5.6,"h":6.0,"note":"Main floor classroom in the C13 cluster.","poly":[[981,93],[1041,58],[1101,94],[1067,114],[1013,114]]},{"id":"Small Office","type":"Administrative","level":"Main Floor","aliases":["Small Office"],"x":65.8,"y":10.6,"w":1.7,"h":8.0,"note":"Main floor office in the C13 cluster."},{"id":"BR (C13 Cluster)","type":"Facility","level":"Main Floor","aliases":["BR","Bathroom"],"x":67.4,"y":16.2,"w":2.8,"h":4.5,"note":"Main floor restroom in the C13 cluster."},{"id":"C11","type":"Classroom","level":"Main Floor","aliases":["C11"],"x":72.0,"y":10.8,"w":3.5,"h":7.4,"note":"Main floor classroom in the C13 cluster.","poly":[[1105,177],[1070,154],[1069,121],[1105,99]]},{"id":"C10","type":"Classroom","level":"Main Floor","aliases":["C10"],"x":70.3,"y":16.2,"w":4.2,"h":4.2,"note":"Main floor classroom in the C13 cluster.","poly":[[1102,183],[1044,220],[1044,173],[1067,160]]},{"id":"B44","type":"Classroom","level":"Main Floor","aliases":["B44"],"x":0.8,"y":20.2,"w":2.7,"h":4.8,"note":"Main floor classroom in the B40 cluster.","poly":[[81,216],[81,261],[57,275],[23,253]]},{"id":"B43","type":"Classroom","level":"Main Floor","aliases":["B43"],"x":3.2,"y":20.0,"w":3.0,"h":4.8,"note":"Main floor classroom in the B40 cluster.","poly":[[88,216],[151,253],[117,276],[88,259]]},{"id":"B45","type":"Classroom","level":"Main Floor","aliases":["B45"],"x":0.4,"y":24.8,"w":3.0,"h":7.0,"note":"Main floor classroom in the B40 cluster.","poly":[[19,258],[53,280],[55,316],[20,339]]},{"id":"B42","type":"Classroom","level":"Main Floor","aliases":["B42"],"x":5.0,"y":24.8,"w":3.2,"h":7.2,"note":"Main floor classroom in the B40 cluster.","poly":[[154,338],[120,315],[120,282],[155,259]]},{"id":"B46","type":"Classroom","level":"Main Floor","aliases":["B46"],"x":1.3,"y":31.0,"w":3.6,"h":5.0,"note":"Main floor classroom in the B40 cluster.","poly":[[23,345],[57,322],[82,337],[82,383]]},{"id":"B41","type":"Classroom","level":"Main Floor","aliases":["B41"],"x":5.2,"y":31.0,"w":2.8,"h":4.2,"note":"Main floor classroom in the B40 cluster.","poly":[[117,321],[152,345],[118,366],[98,333]]},{"id":"Arena B34","type":"Facility","level":"Main Floor","aliases":["Arena B34","Arena","B34"],"x":11.6,"y":22.6,"w":6.0,"h":14.8,"note":"Main floor Arena area."},{"id":"B33","type":"Classroom","level":"Main Floor","aliases":["B33"],"x":17.5,"y":20.0,"w":2.5,"h":4.8,"note":"Main floor classroom in the B30 cluster.","poly":[[275,214],[313,235],[294,266],[275,256]]},{"id":"B32","type":"Classroom","level":"Main Floor","aliases":["B32"],"x":19.4,"y":21.4,"w":2.2,"h":4.0,"note":"Main floor classroom in the B30 cluster.","poly":[[312,250],[320,238],[348,253],[336,260]]},{"id":"BR (B30 Cluster)","type":"Facility","level":"Main Floor","aliases":["BR","Bathroom"],"x":20.3,"y":25.0,"w":2.5,"h":6.2,"note":"Main floor restroom in the B30 cluster.","poly":[[350,260],[351,339],[313,315],[312,290],[313,282]]},{"id":"B31","type":"Classroom","level":"Main Floor","aliases":["B31"],"x":20.1,"y":30.4,"w":3.2,"h":3.6,"note":"Main floor classroom in the B30 cluster.","poly":[[297,330],[312,322],[348,345],[316,364]]},{"id":"B30","type":"Classroom","level":"Main Floor","aliases":["B30"],"x":18.1,"y":33.0,"w":2.9,"h":3.6,"note":"Main floor classroom in the B30 cluster.","poly":[[291,334],[310,368],[276,388],[276,343]]},{"id":"B25","type":"Classroom","level":"Main Floor","aliases":["B25"],"x":24.7,"y":20.0,"w":3.6,"h":5.3,"note":"Main floor classroom in the B25 cluster.","poly":[[455,212],[456,257],[430,274],[387,252]]},{"id":"B24","type":"Classroom","level":"Main Floor","aliases":["B24"],"x":28.0,"y":19.4,"w":2.3,"h":3.2,"note":"Main floor classroom in the B25 cluster.","poly":[[462,212],[497,234],[470,261],[462,257]]},{"id":"B23","type":"Classroom","level":"Main Floor","aliases":["B23"],"x":29.4,"y":20.8,"w":2.0,"h":3.9,"note":"Main floor classroom in the B25 cluster.","poly":[[529,254],[516,262],[491,250],[504,238]]},{"id":"B26","type":"Classroom","level":"Main Floor","aliases":["B26"],"x":24.7,"y":25.2,"w":3.7,"h":7.0,"note":"Main floor classroom in the B25 cluster.","poly":[[384,258],[424,281],[425,315],[383,341]]},{"id":"B22","type":"Classroom","level":"Main Floor","aliases":["B22"],"x":29.3,"y":24.8,"w":2.9,"h":3.9,"note":"Main floor classroom in the B25 cluster.","poly":[[531,261],[531,295],[494,294],[495,282]]},{"id":"B21","type":"Classroom","level":"Main Floor","aliases":["B21"],"x":29.2,"y":28.2,"w":2.9,"h":4.0,"note":"Main floor classroom in the B25 cluster.","poly":[[531,339],[494,315],[494,301],[531,301]]},{"id":"B27","type":"Classroom","level":"Main Floor","aliases":["B27"],"x":25.4,"y":31.8,"w":4.0,"h":5.2,"note":"Main floor classroom in the B25 cluster.","poly":[[387,347],[428,321],[456,338],[456,387]]},{"id":"B20","type":"Classroom","level":"Main Floor","aliases":["B20"],"x":29.1,"y":32.0,"w":4.2,"h":5.0,"note":"Main floor classroom in the B25 cluster.","poly":[[529,346],[463,387],[464,337],[492,322]]},{"id":"B13","type":"Classroom","level":"Main Floor","aliases":["B13"],"x":39.2,"y":20.0,"w":4.0,"h":5.6,"note":"Main floor classroom in the B13 cluster.","poly":[[627,211],[627,259],[602,274],[563,251]]},{"id":"B12","type":"Classroom","level":"Main Floor","aliases":["B12"],"x":43.0,"y":20.7,"w":2.3,"h":3.1,"note":"Main floor classroom in the B13 cluster.","poly":[[633,237],[650,247],[636,259],[633,258]]},{"id":"BR (B13 Cluster)","type":"Facility","level":"Main Floor","aliases":["BR","Bathroom"],"x":39.0,"y":25.0,"w":3.1,"h":6.6,"note":"Main floor restroom in the B13 cluster.","poly":[[559,256],[599,280],[600,309],[598,316],[561,339]]},{"id":"B11","type":"Classroom","level":"Main Floor","aliases":["B11"],"x":43.5,"y":24.4,"w":3.0,"h":7.0,"note":"Main floor classroom in the B13 cluster.","poly":[[700,339],[664,315],[664,281],[701,256]]},{"id":"B14","type":"Classroom","level":"Main Floor","aliases":["B14"],"x":39.8,"y":31.6,"w":4.1,"h":4.8,"note":"Main floor classroom in the B13 cluster.","poly":[[564,345],[602,321],[627,336],[627,385]]},{"id":"B10","type":"Classroom","level":"Main Floor","aliases":["B10"],"x":43.4,"y":31.5,"w":4.2,"h":5.0,"note":"Main floor classroom in the B13 cluster.","poly":[[698,345],[634,386],[634,336],[662,321]]},{"id":"D12","type":"Classroom","level":"Main Floor","aliases":["D12"],"x":50.5,"y":25.4,"w":2.6,"h":6.8,"note":"Main floor classroom/room next to the Library.","poly":[[731,254],[762,276],[766,287],[766,315],[731,340]]},{"id":"Library D10","type":"Facility","level":"Main Floor","aliases":["Library D10","Library","D10"],"x":53.2,"y":22.0,"w":5.0,"h":10.8,"note":"Main floor library.","poly":[[792,211],[867,258],[867,341],[802,383],[762,326],[736,249]]},{"id":"D11","type":"Classroom","level":"Main Floor","aliases":["D11"],"x":52.5,"y":32.6,"w":4.1,"h":4.0,"note":"Main floor room next to the Library.","poly":[[735,345],[756,330],[793,352],[795,382]]},{"id":"Cafeteria","type":"Facility","level":"Main Floor","aliases":["Cafeteria"],"x":61.8,"y":22.0,"w":9.5,"h":13.8,"note":"Main floor cafeteria."},{"id":"Kitchen","type":"Facility","level":"Main Floor","aliases":["Kitchen"],"x":73.0,"y":22.5,"w":9.4,"h":9.0,"note":"Main floor kitchen."},{"id":"A44","type":"Classroom","level":"Main Floor","aliases":["A44"],"x":6.1,"y":36.6,"w":4.5,"h":5.4,"note":"Main floor classroom in the A44 cluster.","poly":[[174,381],[174,428],[152,442],[109,419]]},{"id":"A45","type":"Classroom","level":"Main Floor","aliases":["A45"],"x":5.3,"y":42.4,"w":4.3,"h":6.6,"note":"Main floor classroom in the A44 cluster.","poly":[[105,425],[147,450],[147,483],[106,507]]},{"id":"A46","type":"Classroom","level":"Main Floor","aliases":["A46"],"x":7.0,"y":49.0,"w":4.4,"h":5.2,"note":"Main floor classroom in the A44 cluster.","poly":[[111,512],[149,489],[175,504],[175,551]]},{"id":"Preschool","type":"Facility","level":"Main Floor","aliases":["Preschool"],"x":10.2,"y":39.4,"w":5.4,"h":11.2,"note":"Main floor Preschool area.","poly":[[181,551],[181,504],[209,449],[251,423],[251,507]]},{"id":"A34","type":"Classroom","level":"Main Floor","aliases":["A34"],"x":18.7,"y":35.4,"w":3.0,"h":3.8,"note":"Main floor classroom in the A30 cluster.","poly":[[325,415],[321,420],[301,427],[292,422],[318,406]]},{"id":"A33","type":"Classroom","level":"Main Floor","aliases":["A33"],"x":20.7,"y":34.8,"w":2.2,"h":5.6,"note":"Main floor classroom in the A30 cluster.","poly":[[363,378],[364,421],[347,432],[324,402]]},{"id":"A32","type":"Classroom","level":"Main Floor","aliases":["A32"],"x":22.5,"y":35.0,"w":4.0,"h":4.6,"note":"Main floor classroom in the A30 cluster.","poly":[[370,378],[414,404],[391,435],[370,421]]},{"id":"A35","type":"Classroom","level":"Main Floor","aliases":["A35"],"x":18.6,"y":39.5,"w":4.1,"h":8.0,"note":"Main floor classroom in the A30 cluster.","poly":[[289,428],[327,449],[329,482],[290,506]]},{"id":"A31","type":"Classroom","level":"Main Floor","aliases":["A31"],"x":24.8,"y":39.8,"w":3.5,"h":7.6,"note":"Main floor classroom in the A30 cluster.","poly":[[443,505],[406,480],[406,449],[443,425]]},{"id":"A36","type":"Classroom","level":"Main Floor","aliases":["A36"],"x":20.1,"y":47.2,"w":4.0,"h":5.6,"note":"Main floor classroom in the A30 cluster.","poly":[[294,512],[331,488],[364,504],[364,553]]},{"id":"A30","type":"Classroom","level":"Main Floor","aliases":["A30"],"x":24.0,"y":47.6,"w":3.5,"h":5.4,"note":"Main floor classroom in the A30 cluster.","poly":[[440,511],[371,553],[372,502],[404,487]]},{"id":"A23","type":"Classroom","level":"Main Floor","aliases":["A23"],"x":33.2,"y":35.8,"w":4.0,"h":4.3,"note":"Main floor classroom in the A20 cluster.","poly":[[542,381],[542,427],[518,443],[480,419]]},{"id":"A22","type":"Classroom","level":"Main Floor","aliases":["A22"],"x":37.0,"y":35.8,"w":3.0,"h":4.2,"note":"Main floor classroom in the A20 cluster.","poly":[[548,382],[612,419],[602,425],[549,395]]},{"id":"A24","type":"Classroom","level":"Main Floor","aliases":["A24"],"x":33.5,"y":41.0,"w":4.5,"h":9.0,"note":"Main floor classroom in the A20 cluster.","poly":[[476,425],[547,433],[573,449],[574,480],[544,549],[476,509]]},{"id":"A21","type":"Classroom","level":"Main Floor","aliases":["A21"],"x":39.2,"y":39.8,"w":3.2,"h":8.0,"note":"Main floor classroom in the A20 cluster.","poly":[[616,424],[617,505],[580,480],[579,449]]},{"id":"A20","type":"Classroom","level":"Main Floor","aliases":["A20"],"x":35.4,"y":48.6,"w":4.1,"h":4.8,"note":"Main floor classroom in the A20 cluster.","poly":[[614,511],[550,551],[550,503],[578,487]]},{"id":"A14","type":"Classroom","level":"Main Floor","aliases":["A14"],"x":43.7,"y":40.0,"w":2.9,"h":7.8,"note":"Main floor room next to the Main Office."},{"id":"Main Office","type":"Administrative","level":"Main Floor","aliases":["Main Office"],"x":46.3,"y":37.4,"w":9.2,"h":12.8,"note":"Main floor Main Office."},{"id":"A15","type":"Classroom","level":"Main Floor","aliases":["A15"],"x":47.0,"y":49.0,"w":4.2,"h":4.8,"note":"Main floor room next to the Main Office."},{"id":"Nurse","type":"Facility","level":"Main Floor","aliases":["Nurse"],"x":50.8,"y":46.8,"w":3.8,"h":4.8,"note":"Main floor Nurse office."},{"id":"Front Door","type":"Facility","level":"Main Floor","aliases":["Front Door","Front Entrance"],"x":53.4,"y":49.8,"w":3.2,"h":4.4,"note":"Main floor front entrance."},{"id":"Lobby","type":"Facility","level":"Main Floor","aliases":["Lobby"],"x":58.0,"y":39.5,"w":7.2,"h":9.0,"note":"Main floor lobby."},{"id":"Audion","type":"Facility","level":"Main Floor","aliases":["Audion","Auditorium"],"x":65.0,"y":37.8,"w":12.0,"h":15.0,"note":"Main floor auditorium."},{"id":"Stage","type":"Facility","level":"Main Floor","aliases":["Stage"],"x":76.8,"y":36.0,"w":4.0,"h":16.0,"note":"Main floor stage."},{"id":"E108","type":"Classroom","level":"Main Floor","aliases":["E108"],"x":81.3,"y":38.6,"w":4.0,"h":13.0,"note":"Main floor E-wing room near the Stage."},{"id":"E102","type":"Classroom","level":"Main Floor","aliases":["E102"],"x":61.4,"y":54.2,"w":3.6,"h":8.0,"note":"Main floor E-wing room."},{"id":"E103","type":"Classroom","level":"Main Floor","aliases":["E103"],"x":61.4,"y":61.2,"w":3.6,"h":8.5,"note":"Main floor E-wing room."},{"id":"E106","type":"Classroom","level":"Main Floor","aliases":["E106"],"x":81.7,"y":51.0,"w":3.4,"h":7.2,"note":"Main floor E-wing room."},{"id":"E105","type":"Classroom","level":"Main Floor","aliases":["E105"],"x":81.7,"y":57.0,"w":3.4,"h":7.2,"note":"Main floor E-wing room."},{"id":"E104","type":"Classroom","level":"Main Floor","aliases":["E104"],"x":81.3,"y":63.4,"w":3.8,"h":7.4,"note":"Main floor E-wing room."},{"id":"Music Room (Band)","type":"Facility","level":"Main Floor","aliases":["Music Room","Band","Music Room (Band)"],"x":80.6,"y":71.2,"w":10.2,"h":14.0,"note":"Main floor Music Room/Band area."},{"id":"Automotive Shop","type":"Outdoor","level":"Outside","aliases":["Automotive Shop"],"x":92.2,"y":57.7,"w":4.5,"h":18.0,"note":"Outside area."},{"id":"Football Field","type":"Outdoor","level":"Outside","aliases":["Football Field"],"x":89.4,"y":3.0,"w":6.2,"h":17.0,"note":"Outside area."},{"id":"Barn","type":"Outdoor","level":"Outside","aliases":["Barn"],"x":93.0,"y":28.2,"w":4.8,"h":4.0,"note":"Outside area."},{"id":"Greenhouse","type":"Outdoor","level":"Outside","aliases":["Greenhouse"],"x":89.5,"y":34.5,"w":6.5,"h":8.0,"note":"Outside area."},{"id":"Lower Level","type":"Navigation","level":"Lower Level","aliases":["Lower Level","Downstairs"],"x":26.2,"y":54.6,"w":24.0,"h":33.0,"action":"open-lower","note":"Tap to open the downstairs map."},{"id":"Auxiliary Gym","type":"Facility","level":"Main Floor","aliases":["Auxiliary Gym","Aux Gym","Auxiliary Gymnasium","Lower Gym","Small Gym"],"x":61.4,"y":72.9,"w":9.0,"h":12.0,"note":"Main floor auxiliary gym/court area. It can be reached from outside if the doors are unlocked, or by going downstairs, past the main gym, through the set of doors at the end of the hall, and up the stairs."},{"id":"Main Gym / Lower Level Access","type":"Navigation","level":"Main Floor","aliases":["Main Gym","Lower Level Access"],"x":65.2,"y":53.2,"w":15.4,"h":17.2,"note":"Tap to view the Main Gym area.","action":"open-lower-room","target":"Main Gym"},{"id":"Swimming Pool / Lower Level Access","type":"Navigation","level":"Main Floor","aliases":["Swimming Pool","Pool","Lower Level Pool"],"x":28.8,"y":72.8,"w":7.2,"h":10.4,"note":"Tap to view the Swimming Pool area.","action":"open-lower-room","target":"Swimming Pool"}],"lowerHotspots":[{"id":"Main Gym","type":"Facility","level":"Lower Level","aliases":["Main Gym","Gym","Court"],"x":31.2,"y":18.3,"w":22.3,"h":34.8,"note":"Main Gym area."},{"id":"E1","type":"Classroom","level":"Lower Level","aliases":["E1"],"x":21.64,"y":23.59,"w":10,"h":20,"note":"Lower Level room, next to E2."},{"id":"E2","type":"Classroom","level":"Lower Level","aliases":["E2"],"x":22.09,"y":41.19,"w":10,"h":20,"note":"Lower Level room, next to E1."},{"id":"E32","type":"Classroom","level":"Lower Level","aliases":["E32"],"x":54.0,"y":26.55,"w":10,"h":16,"note":"Lower Level room, next to E31."},{"id":"E31","type":"Classroom","level":"Lower Level","aliases":["E31"],"x":55.6,"y":38.91,"w":10,"h":16,"note":"Lower Level room, next to E32."},{"id":"Boys Locker Rooms","type":"Facility","level":"Lower Level","aliases":["Boys Locker Rooms"],"x":24,"y":58,"w":19,"h":15,"note":"Lower Level locker room area."},{"id":"Girls Locker Rooms","type":"Facility","level":"Lower Level","aliases":["Girls Locker Rooms"],"x":43,"y":58,"w":19,"h":15,"note":"Lower Level locker room area."},{"id":"Wrestling Room","type":"Facility","level":"Lower Level","aliases":["Wrestling Room"],"x":53.71,"y":55.99,"w":19,"h":23,"note":"Lower Level room near E31 and E32."},{"id":"Swimming Pool","type":"Facility","level":"Lower Level","aliases":["Swimming Pool","Pool"],"x":29.0,"y":68.0,"w":20.0,"h":16.0,"note":"Lower Level swimming pool area."}]};
-const mainRooms = DATA.mainHotspots, lowerRooms = DATA.lowerHotspots, allRooms = [...mainRooms, ...lowerRooms];
-const mainStage=document.getElementById('mainStage'), lowerStage=document.getElementById('lowerStage'), mainWrap=document.getElementById('mainWrap'), lowerWrap=document.getElementById('lowerWrap'), mainSvg=document.getElementById('mainSvg'), roomPolys=document.getElementById('roomPolys');
-const info=document.getElementById('info'), nameEl=document.getElementById('name'), meta=document.getElementById('meta'), note=document.getElementById('note');
-const lowerInfo=document.getElementById('lowerInfo'), lowerName=document.getElementById('lowerName'), lowerMeta=document.getElementById('lowerMeta'), lowerNote=document.getElementById('lowerNote');
-const search=document.getElementById('search'), results=document.getElementById('results'), lowerModal=document.getElementById('lowerModal');
-let selectedId=null, activeEl=null, mainZoom=1, lowerZoom=1; let fitTimer = null;
-const MIN_ZOOM=.45, MAX_ZOOM=3, STEP=.2;
+const DATA = {"mainHotspots": [{"id": "C64", "type": "Classroom", "level": "Main Floor", "aliases": ["C64"], "x": 6.3, "y": 7.2, "w": 3.0, "h": 8.5, "note": "Main floor classroom in the C60 cluster.", "poly": [[122, 81], [143, 112], [135, 151], [90, 180], [90, 101]]}, {"id": "C62", "type": "Classroom", "level": "Main Floor", "aliases": ["C62"], "x": 9.2, "y": 4.2, "w": 3.2, "h": 6.0, "note": "Main floor classroom in the C60 cluster.", "poly": [[206, 77], [186, 109], [149, 109], [129, 79], [166, 56]]}, {"id": "C60", "type": "Classroom", "level": "Main Floor", "aliases": ["C60"], "x": 9.0, "y": 10.2, "w": 3.6, "h": 6.6, "note": "Main floor classroom in the C60 cluster.", "poly": [[169, 107], [195, 123], [195, 151], [167, 167], [141, 151], [141, 123]]}, {"id": "C61", "type": "Classroom", "level": "Main Floor", "aliases": ["C61"], "x": 12.1, "y": 9.2, "w": 3.0, "h": 8.0, "note": "Main floor classroom in the C60 cluster.", "poly": [[213, 81], [242, 98], [242, 178], [201, 151], [192, 112]]}, {"id": "C65", "type": "Classroom", "level": "Main Floor", "aliases": ["C65"], "x": 8.2, "y": 15.0, "w": 4.0, "h": 5.6, "note": "Main floor classroom in the C60 cluster.", "poly": [[96, 185], [140, 158], [164, 173], [165, 224]]}, {"id": "C66", "type": "Classroom", "level": "Main Floor", "aliases": ["C66"], "x": 11.0, "y": 14.9, "w": 2.2, "h": 4.2, "note": "Main floor classroom in the C60 cluster.", "poly": [[238, 184], [171, 226], [171, 173], [199, 158]]}, {"id": "C57", "type": "Classroom", "level": "Main Floor", "aliases": ["C57"], "x": 18.5, "y": 4.1, "w": 4.0, "h": 5.6, "note": "Main floor classroom in the C50 cluster.", "poly": [[351, 56], [351, 98], [324, 114], [286, 92]]}, {"id": "C53", "type": "Classroom", "level": "Main Floor", "aliases": ["C53"], "x": 22.0, "y": 4.2, "w": 3.7, "h": 5.8, "note": "Main floor classroom in the C50 cluster.", "poly": [[357, 55], [423, 93], [387, 114], [357, 97]]}, {"id": "C55", "type": "Classroom", "level": "Main Floor", "aliases": ["C55"], "x": 18.3, "y": 9.2, "w": 3.5, "h": 7.8, "note": "Main floor classroom in the C50 cluster.", "poly": [[282, 98], [320, 120], [320, 151], [281, 173]]}, {"id": "C52", "type": "Classroom", "level": "Main Floor", "aliases": ["C52"], "x": 24.1, "y": 9.0, "w": 3.6, "h": 8.0, "note": "Main floor classroom in the C50 cluster.", "poly": [[426, 99], [427, 172], [389, 151], [388, 121]]}, {"id": "C56", "type": "Classroom", "level": "Main Floor", "aliases": ["C56"], "x": 18.8, "y": 15.2, "w": 4.4, "h": 5.0, "note": "Main floor classroom in the C50 cluster.", "poly": [[285, 179], [323, 157], [350, 172], [351, 219]]}, {"id": "C50", "type": "Classroom", "level": "Main Floor", "aliases": ["C50"], "x": 22.9, "y": 15.5, "w": 2.0, "h": 3.8, "note": "Main floor classroom in the C50 cluster.", "poly": [[370, 166], [392, 200], [358, 220], [357, 174]]}, {"id": "C51", "type": "Classroom", "level": "Main Floor", "aliases": ["C51"], "x": 24.7, "y": 15.0, "w": 2.5, "h": 4.8, "note": "Main floor classroom in the C50 cluster.", "poly": [[376, 163], [386, 157], [425, 179], [398, 195]]}, {"id": "Art Room", "type": "Facility", "level": "Main Floor", "aliases": ["Art Room", "Art"], "x": 31.7, "y": 7.0, "w": 5.8, "h": 11.4, "note": "Main floor Art Room."}, {"id": "TV/Radio Room", "type": "Facility", "level": "Main Floor", "aliases": ["TV/Radio Room", "TV Room", "Radio Room"], "x": 37.0, "y": 6.5, "w": 5.4, "h": 11.8, "note": "Main floor TV/Radio Room."}, {"id": "C31", "type": "Classroom", "level": "Main Floor", "aliases": ["C31"], "x": 45.2, "y": 4.8, "w": 4.8, "h": 6.4, "note": "Main floor classroom in the C31 cluster.", "poly": [[663, 88], [715, 58], [778, 95], [779, 120], [689, 114]]}, {"id": "C33", "type": "Classroom", "level": "Main Floor", "aliases": ["C33"], "x": 44.4, "y": 10.6, "w": 4.1, "h": 7.8, "note": "Main floor classroom in the C31 cluster.", "poly": [[656, 92], [686, 121], [698, 164], [677, 196], [650, 180], [650, 96]]}, {"id": "AD", "type": "Administrative", "level": "Main Floor", "aliases": ["AD"], "x": 50.1, "y": 11.0, "w": 3.0, "h": 4.6, "note": "Main floor office in the C31 cluster."}, {"id": "C30", "type": "Classroom", "level": "Main Floor", "aliases": ["C30"], "x": 47.2, "y": 16.0, "w": 4.6, "h": 5.2, "note": "Main floor classroom in the C31 cluster.", "poly": [[779, 156], [779, 180], [716, 220], [683, 199], [704, 168], [745, 156]]}, {"id": "C22", "type": "Classroom", "level": "Main Floor", "aliases": ["C22"], "x": 55.9, "y": 4.7, "w": 4.6, "h": 5.8, "note": "Main floor classroom in the C22 cluster.", "poly": [[908, 77], [889, 107], [850, 115], [815, 94], [876, 58]]}, {"id": "C26", "type": "Classroom", "level": "Main Floor", "aliases": ["C26"], "x": 55.5, "y": 11.0, "w": 3.0, "h": 3.8, "note": "Main floor classroom in the C22 cluster.", "poly": [[845, 128], [845, 153], [812, 153], [812, 128]]}, {"id": "C20", "type": "Classroom", "level": "Main Floor", "aliases": ["C20"], "x": 60.4, "y": 10.6, "w": 3.9, "h": 8.4, "note": "Main floor classroom in the C22 cluster.", "poly": [[914, 80], [943, 97], [943, 180], [919, 195], [896, 165], [895, 110]]}, {"id": "C25", "type": "Classroom", "level": "Main Floor", "aliases": ["C25"], "x": 57.2, "y": 16.0, "w": 4.8, "h": 4.5, "note": "Main floor classroom in the C22 cluster.", "poly": [[812, 159], [848, 159], [890, 167], [912, 199], [877, 221], [812, 181]]}, {"id": "C13", "type": "Classroom", "level": "Main Floor", "aliases": ["C13"], "x": 67.2, "y": 4.5, "w": 5.6, "h": 6.0, "note": "Main floor classroom in the C13 cluster.", "poly": [[981, 93], [1041, 58], [1101, 94], [1067, 114], [1013, 114]]}, {"id": "Small Office", "type": "Administrative", "level": "Main Floor", "aliases": ["Small Office"], "x": 65.8, "y": 10.6, "w": 1.7, "h": 8.0, "note": "Main floor office in the C13 cluster."}, {"id": "BR (C13 Cluster)", "type": "Facility", "level": "Main Floor", "aliases": ["BR", "Bathroom"], "x": 67.4, "y": 16.2, "w": 2.8, "h": 4.5, "note": "Main floor restroom in the C13 cluster."}, {"id": "C11", "type": "Classroom", "level": "Main Floor", "aliases": ["C11"], "x": 72.0, "y": 10.8, "w": 3.5, "h": 7.4, "note": "Main floor classroom in the C13 cluster.", "poly": [[1105, 177], [1070, 154], [1069, 121], [1105, 99]]}, {"id": "C10", "type": "Classroom", "level": "Main Floor", "aliases": ["C10"], "x": 70.3, "y": 16.2, "w": 4.2, "h": 4.2, "note": "Main floor classroom in the C13 cluster.", "poly": [[1102, 183], [1044, 220], [1044, 173], [1067, 160]]}, {"id": "B44", "type": "Classroom", "level": "Main Floor", "aliases": ["B44"], "x": 0.8, "y": 20.2, "w": 2.7, "h": 4.8, "note": "Main floor classroom in the B40 cluster.", "poly": [[81, 216], [81, 261], [57, 275], [23, 253]]}, {"id": "B43", "type": "Classroom", "level": "Main Floor", "aliases": ["B43"], "x": 3.2, "y": 20.0, "w": 3.0, "h": 4.8, "note": "Main floor classroom in the B40 cluster.", "poly": [[88, 216], [151, 253], [117, 276], [88, 259]]}, {"id": "B45", "type": "Classroom", "level": "Main Floor", "aliases": ["B45"], "x": 0.4, "y": 24.8, "w": 3.0, "h": 7.0, "note": "Main floor classroom in the B40 cluster.", "poly": [[19, 258], [53, 280], [55, 316], [20, 339]]}, {"id": "B42", "type": "Classroom", "level": "Main Floor", "aliases": ["B42"], "x": 5.0, "y": 24.8, "w": 3.2, "h": 7.2, "note": "Main floor classroom in the B40 cluster.", "poly": [[154, 338], [120, 315], [120, 282], [155, 259]]}, {"id": "B46", "type": "Classroom", "level": "Main Floor", "aliases": ["B46"], "x": 1.3, "y": 31.0, "w": 3.6, "h": 5.0, "note": "Main floor classroom in the B40 cluster.", "poly": [[23, 345], [57, 322], [82, 337], [82, 383]]}, {"id": "B41", "type": "Classroom", "level": "Main Floor", "aliases": ["B41"], "x": 5.2, "y": 31.0, "w": 2.8, "h": 4.2, "note": "Main floor classroom in the B40 cluster.", "poly": [[117, 321], [152, 345], [118, 366], [98, 333]]}, {"id": "Arena B34", "type": "Facility", "level": "Main Floor", "aliases": ["Arena B34", "Arena", "B34"], "x": 11.6, "y": 22.6, "w": 6.0, "h": 14.8, "note": "Main floor Arena area."}, {"id": "B33", "type": "Classroom", "level": "Main Floor", "aliases": ["B33"], "x": 17.5, "y": 20.0, "w": 2.5, "h": 4.8, "note": "Main floor classroom in the B30 cluster.", "poly": [[275, 214], [313, 235], [294, 266], [275, 256]]}, {"id": "B32", "type": "Classroom", "level": "Main Floor", "aliases": ["B32"], "x": 19.4, "y": 21.4, "w": 2.2, "h": 4.0, "note": "Main floor classroom in the B30 cluster.", "poly": [[312, 250], [320, 238], [348, 253], [336, 260]]}, {"id": "BR (B30 Cluster)", "type": "Facility", "level": "Main Floor", "aliases": ["BR", "Bathroom"], "x": 20.3, "y": 25.0, "w": 2.5, "h": 6.2, "note": "Main floor restroom in the B30 cluster.", "poly": [[350, 260], [351, 339], [313, 315], [312, 290], [313, 282]]}, {"id": "B31", "type": "Classroom", "level": "Main Floor", "aliases": ["B31"], "x": 20.1, "y": 30.4, "w": 3.2, "h": 3.6, "note": "Main floor classroom in the B30 cluster.", "poly": [[297, 330], [312, 322], [348, 345], [316, 364]]}, {"id": "B30", "type": "Classroom", "level": "Main Floor", "aliases": ["B30"], "x": 18.1, "y": 33.0, "w": 2.9, "h": 3.6, "note": "Main floor classroom in the B30 cluster.", "poly": [[291, 334], [310, 368], [276, 388], [276, 343]]}, {"id": "B25", "type": "Classroom", "level": "Main Floor", "aliases": ["B25"], "x": 24.7, "y": 20.0, "w": 3.6, "h": 5.3, "note": "Main floor classroom in the B25 cluster.", "poly": [[455, 212], [456, 257], [430, 274], [387, 252]]}, {"id": "B24", "type": "Classroom", "level": "Main Floor", "aliases": ["B24"], "x": 28.0, "y": 19.4, "w": 2.3, "h": 3.2, "note": "Main floor classroom in the B25 cluster.", "poly": [[462, 212], [497, 234], [470, 261], [462, 257]]}, {"id": "B23", "type": "Classroom", "level": "Main Floor", "aliases": ["B23"], "x": 29.4, "y": 20.8, "w": 2.0, "h": 3.9, "note": "Main floor classroom in the B25 cluster.", "poly": [[529, 254], [516, 262], [491, 250], [504, 238]]}, {"id": "B26", "type": "Classroom", "level": "Main Floor", "aliases": ["B26"], "x": 24.7, "y": 25.2, "w": 3.7, "h": 7.0, "note": "Main floor classroom in the B25 cluster.", "poly": [[384, 258], [424, 281], [425, 315], [383, 341]]}, {"id": "B22", "type": "Classroom", "level": "Main Floor", "aliases": ["B22"], "x": 29.3, "y": 24.8, "w": 2.9, "h": 3.9, "note": "Main floor classroom in the B25 cluster.", "poly": [[531, 261], [531, 295], [494, 294], [495, 282]]}, {"id": "B21", "type": "Classroom", "level": "Main Floor", "aliases": ["B21"], "x": 29.2, "y": 28.2, "w": 2.9, "h": 4.0, "note": "Main floor classroom in the B25 cluster.", "poly": [[531, 339], [494, 315], [494, 301], [531, 301]]}, {"id": "B27", "type": "Classroom", "level": "Main Floor", "aliases": ["B27"], "x": 25.4, "y": 31.8, "w": 4.0, "h": 5.2, "note": "Main floor classroom in the B25 cluster.", "poly": [[387, 347], [428, 321], [456, 338], [456, 387]]}, {"id": "B20", "type": "Classroom", "level": "Main Floor", "aliases": ["B20"], "x": 29.1, "y": 32.0, "w": 4.2, "h": 5.0, "note": "Main floor classroom in the B25 cluster.", "poly": [[529, 346], [463, 387], [464, 337], [492, 322]]}, {"id": "B13", "type": "Classroom", "level": "Main Floor", "aliases": ["B13"], "x": 39.2, "y": 20.0, "w": 4.0, "h": 5.6, "note": "Main floor classroom in the B13 cluster.", "poly": [[627, 211], [627, 259], [602, 274], [563, 251]]}, {"id": "B12", "type": "Classroom", "level": "Main Floor", "aliases": ["B12"], "x": 43.0, "y": 20.7, "w": 2.3, "h": 3.1, "note": "Main floor classroom in the B13 cluster.", "poly": [[633, 237], [650, 247], [636, 259], [633, 258]]}, {"id": "BR (B13 Cluster)", "type": "Facility", "level": "Main Floor", "aliases": ["BR", "Bathroom"], "x": 39.0, "y": 25.0, "w": 3.1, "h": 6.6, "note": "Main floor restroom in the B13 cluster.", "poly": [[559, 256], [599, 280], [600, 309], [598, 316], [561, 339]]}, {"id": "B11", "type": "Classroom", "level": "Main Floor", "aliases": ["B11"], "x": 43.5, "y": 24.4, "w": 3.0, "h": 7.0, "note": "Main floor classroom in the B13 cluster.", "poly": [[700, 339], [664, 315], [664, 281], [701, 256]]}, {"id": "B14", "type": "Classroom", "level": "Main Floor", "aliases": ["B14"], "x": 39.8, "y": 31.6, "w": 4.1, "h": 4.8, "note": "Main floor classroom in the B13 cluster.", "poly": [[564, 345], [602, 321], [627, 336], [627, 385]]}, {"id": "B10", "type": "Classroom", "level": "Main Floor", "aliases": ["B10"], "x": 43.4, "y": 31.5, "w": 4.2, "h": 5.0, "note": "Main floor classroom in the B13 cluster.", "poly": [[698, 345], [634, 386], [634, 336], [662, 321]]}, {"id": "D12", "type": "Classroom", "level": "Main Floor", "aliases": ["D12"], "x": 50.5, "y": 25.4, "w": 2.6, "h": 6.8, "note": "Main floor classroom/room next to the Library.", "poly": [[731, 254], [762, 276], [766, 287], [766, 315], [731, 340]]}, {"id": "Library D10", "type": "Facility", "level": "Main Floor", "aliases": ["Library D10", "Library", "D10"], "x": 53.2, "y": 22.0, "w": 5.0, "h": 10.8, "note": "Main floor library.", "poly": [[792, 211], [867, 258], [867, 341], [802, 383], [762, 326], [736, 249]]}, {"id": "D11", "type": "Classroom", "level": "Main Floor", "aliases": ["D11"], "x": 52.5, "y": 32.6, "w": 4.1, "h": 4.0, "note": "Main floor room next to the Library.", "poly": [[735, 345], [756, 330], [793, 352], [795, 382]]}, {"id": "Cafeteria", "type": "Facility", "level": "Main Floor", "aliases": ["Cafeteria"], "x": 61.8, "y": 22.0, "w": 9.5, "h": 13.8, "note": "Main floor cafeteria."}, {"id": "Kitchen", "type": "Facility", "level": "Main Floor", "aliases": ["Kitchen"], "x": 73.0, "y": 22.5, "w": 9.4, "h": 9.0, "note": "Main floor kitchen."}, {"id": "A44", "type": "Classroom", "level": "Main Floor", "aliases": ["A44"], "x": 6.1, "y": 36.6, "w": 4.5, "h": 5.4, "note": "Main floor classroom in the A44 cluster.", "poly": [[174, 381], [174, 428], [152, 442], [109, 419]]}, {"id": "A45", "type": "Classroom", "level": "Main Floor", "aliases": ["A45"], "x": 5.3, "y": 42.4, "w": 4.3, "h": 6.6, "note": "Main floor classroom in the A44 cluster.", "poly": [[105, 425], [147, 450], [147, 483], [106, 507]]}, {"id": "A46", "type": "Classroom", "level": "Main Floor", "aliases": ["A46"], "x": 7.0, "y": 49.0, "w": 4.4, "h": 5.2, "note": "Main floor classroom in the A44 cluster.", "poly": [[111, 512], [149, 489], [175, 504], [175, 551]]}, {"id": "Preschool", "type": "Facility", "level": "Main Floor", "aliases": ["Preschool"], "x": 10.2, "y": 39.4, "w": 5.4, "h": 11.2, "note": "Main floor Preschool area.", "poly": [[181, 551], [181, 504], [209, 449], [251, 423], [251, 507]]}, {"id": "A34", "type": "Classroom", "level": "Main Floor", "aliases": ["A34"], "x": 18.7, "y": 35.4, "w": 3.0, "h": 3.8, "note": "Main floor classroom in the A30 cluster.", "poly": [[325, 415], [321, 420], [301, 427], [292, 422], [318, 406]]}, {"id": "A33", "type": "Classroom", "level": "Main Floor", "aliases": ["A33"], "x": 20.7, "y": 34.8, "w": 2.2, "h": 5.6, "note": "Main floor classroom in the A30 cluster.", "poly": [[363, 378], [364, 421], [347, 432], [324, 402]]}, {"id": "A32", "type": "Classroom", "level": "Main Floor", "aliases": ["A32"], "x": 22.5, "y": 35.0, "w": 4.0, "h": 4.6, "note": "Main floor classroom in the A30 cluster.", "poly": [[370, 378], [414, 404], [391, 435], [370, 421]]}, {"id": "A35", "type": "Classroom", "level": "Main Floor", "aliases": ["A35"], "x": 18.6, "y": 39.5, "w": 4.1, "h": 8.0, "note": "Main floor classroom in the A30 cluster.", "poly": [[289, 428], [327, 449], [329, 482], [290, 506]]}, {"id": "A31", "type": "Classroom", "level": "Main Floor", "aliases": ["A31"], "x": 24.8, "y": 39.8, "w": 3.5, "h": 7.6, "note": "Main floor classroom in the A30 cluster.", "poly": [[443, 505], [406, 480], [406, 449], [443, 425]]}, {"id": "A36", "type": "Classroom", "level": "Main Floor", "aliases": ["A36"], "x": 20.1, "y": 47.2, "w": 4.0, "h": 5.6, "note": "Main floor classroom in the A30 cluster.", "poly": [[294, 512], [331, 488], [364, 504], [364, 553]]}, {"id": "A30", "type": "Classroom", "level": "Main Floor", "aliases": ["A30"], "x": 24.0, "y": 47.6, "w": 3.5, "h": 5.4, "note": "Main floor classroom in the A30 cluster.", "poly": [[440, 511], [371, 553], [372, 502], [404, 487]]}, {"id": "A23", "type": "Classroom", "level": "Main Floor", "aliases": ["A23"], "x": 33.2, "y": 35.8, "w": 4.0, "h": 4.3, "note": "Main floor classroom in the A20 cluster.", "poly": [[542, 381], [542, 427], [518, 443], [480, 419]]}, {"id": "A22", "type": "Classroom", "level": "Main Floor", "aliases": ["A22"], "x": 37.0, "y": 35.8, "w": 3.0, "h": 4.2, "note": "Main floor classroom in the A20 cluster.", "poly": [[548, 382], [612, 419], [602, 425], [549, 395]]}, {"id": "A24", "type": "Classroom", "level": "Main Floor", "aliases": ["A24"], "x": 33.5, "y": 41.0, "w": 4.5, "h": 9.0, "note": "Main floor classroom in the A20 cluster.", "poly": [[476, 425], [547, 433], [573, 449], [574, 480], [544, 549], [476, 509]]}, {"id": "A21", "type": "Classroom", "level": "Main Floor", "aliases": ["A21"], "x": 39.2, "y": 39.8, "w": 3.2, "h": 8.0, "note": "Main floor classroom in the A20 cluster.", "poly": [[616, 424], [617, 505], [580, 480], [579, 449]]}, {"id": "A20", "type": "Classroom", "level": "Main Floor", "aliases": ["A20"], "x": 35.4, "y": 48.6, "w": 4.1, "h": 4.8, "note": "Main floor classroom in the A20 cluster.", "poly": [[614, 511], [550, 551], [550, 503], [578, 487]]}, {"id": "A14", "type": "Classroom", "level": "Main Floor", "aliases": ["A14"], "x": 43.7, "y": 40.0, "w": 2.9, "h": 7.8, "note": "Main floor room next to the Main Office."}, {"id": "Main Office", "type": "Administrative", "level": "Main Floor", "aliases": ["Main Office"], "x": 46.3, "y": 37.4, "w": 9.2, "h": 12.8, "note": "Main floor Main Office."}, {"id": "A15", "type": "Classroom", "level": "Main Floor", "aliases": ["A15"], "x": 47.0, "y": 49.0, "w": 4.2, "h": 4.8, "note": "Main floor room next to the Main Office."}, {"id": "Nurse", "type": "Facility", "level": "Main Floor", "aliases": ["Nurse"], "x": 50.8, "y": 46.8, "w": 3.8, "h": 4.8, "note": "Main floor Nurse office."}, {"id": "Front Door", "type": "Facility", "level": "Main Floor", "aliases": ["Front Door", "Front Entrance"], "x": 53.4, "y": 49.8, "w": 3.2, "h": 4.4, "note": "Main floor front entrance."}, {"id": "Lobby", "type": "Facility", "level": "Main Floor", "aliases": ["Lobby"], "x": 58.0, "y": 39.5, "w": 7.2, "h": 9.0, "note": "Main floor lobby."}, {"id": "Audion", "type": "Facility", "level": "Main Floor", "aliases": ["Audion", "Auditorium"], "x": 65.0, "y": 37.8, "w": 12.0, "h": 15.0, "note": "Main floor auditorium."}, {"id": "Stage", "type": "Facility", "level": "Main Floor", "aliases": ["Stage"], "x": 76.8, "y": 36.0, "w": 4.0, "h": 16.0, "note": "Main floor stage."}, {"id": "E108", "type": "Classroom", "level": "Main Floor", "aliases": ["E108"], "x": 81.3, "y": 38.6, "w": 4.0, "h": 13.0, "note": "Main floor E-wing room near the Stage."}, {"id": "E102", "type": "Classroom", "level": "Main Floor", "aliases": ["E102"], "x": 61.4, "y": 54.2, "w": 3.6, "h": 8.0, "note": "Main floor E-wing room."}, {"id": "E103", "type": "Classroom", "level": "Main Floor", "aliases": ["E103"], "x": 61.4, "y": 61.2, "w": 3.6, "h": 8.5, "note": "Main floor E-wing room."}, {"id": "E106", "type": "Classroom", "level": "Main Floor", "aliases": ["E106"], "x": 81.7, "y": 51.0, "w": 3.4, "h": 7.2, "note": "Main floor E-wing room."}, {"id": "E105", "type": "Classroom", "level": "Main Floor", "aliases": ["E105"], "x": 81.7, "y": 57.0, "w": 3.4, "h": 7.2, "note": "Main floor E-wing room."}, {"id": "E104", "type": "Classroom", "level": "Main Floor", "aliases": ["E104"], "x": 81.3, "y": 63.4, "w": 3.8, "h": 7.4, "note": "Main floor E-wing room."}, {"id": "Music Room (Band)", "type": "Facility", "level": "Main Floor", "aliases": ["Music Room", "Band", "Music Room (Band)"], "x": 80.6, "y": 71.2, "w": 10.2, "h": 14.0, "note": "Main floor Music Room/Band area."}, {"id": "Automotive Shop", "type": "Outdoor", "level": "Outside", "aliases": ["Automotive Shop"], "x": 92.2, "y": 57.7, "w": 4.5, "h": 18.0, "note": "Outside area."}, {"id": "Football Field", "type": "Outdoor", "level": "Outside", "aliases": ["Football Field"], "x": 89.4, "y": 3.0, "w": 6.2, "h": 17.0, "note": "Outside area."}, {"id": "Barn", "type": "Outdoor", "level": "Outside", "aliases": ["Barn"], "x": 93.0, "y": 28.2, "w": 4.8, "h": 4.0, "note": "Outside area."}, {"id": "Greenhouse", "type": "Outdoor", "level": "Outside", "aliases": ["Greenhouse"], "x": 89.5, "y": 34.5, "w": 6.5, "h": 8.0, "note": "Outside area."}, {"id": "Lower Level", "type": "Navigation", "level": "Lower Level", "aliases": ["Lower Level", "Downstairs"], "x": 26.2, "y": 54.6, "w": 24.0, "h": 33.0, "action": "open-lower", "note": "Tap to open the downstairs map."}, {"id": "Auxiliary Gym", "type": "Facility", "level": "Main Floor", "aliases": ["Auxiliary Gym", "Aux Gym", "Auxiliary Gymnasium", "Lower Gym", "Small Gym"], "x": 61.4, "y": 72.9, "w": 9.0, "h": 12.0, "note": "Main floor auxiliary gym/court area. It can be reached from outside if the doors are unlocked, or by going downstairs, past the main gym, through the set of doors at the end of the hall, and up the stairs."}, {"id": "Main Gym / Lower Level Access", "type": "Navigation", "level": "Main Floor", "aliases": ["Main Gym", "Lower Level Access"], "x": 65.2, "y": 53.2, "w": 15.4, "h": 17.2, "note": "Tap to view the Main Gym area.", "action": "open-lower-room", "target": "Main Gym"}, {"id": "Swimming Pool / Lower Level Access", "type": "Navigation", "level": "Main Floor", "aliases": ["Swimming Pool", "Pool", "Lower Level Pool"], "x": 28.8, "y": 72.8, "w": 7.2, "h": 10.4, "note": "Tap to view the Swimming Pool area.", "action": "open-lower-room", "target": "Swimming Pool"}], "lowerHotspots": [{"id": "Main Gym", "type": "Facility", "level": "Lower Level", "aliases": ["Main Gym", "Gym", "Court"], "x": 31.2, "y": 18.3, "w": 22.3, "h": 34.8, "note": "Main Gym area."}, {"id": "E1", "type": "Classroom", "level": "Lower Level", "aliases": ["E1"], "x": 21.64, "y": 23.59, "w": 10, "h": 20, "note": "Lower Level room, next to E2."}, {"id": "E2", "type": "Classroom", "level": "Lower Level", "aliases": ["E2"], "x": 22.09, "y": 41.19, "w": 10, "h": 20, "note": "Lower Level room, next to E1."}, {"id": "E32", "type": "Classroom", "level": "Lower Level", "aliases": ["E32"], "x": 54.0, "y": 26.55, "w": 10, "h": 16, "note": "Lower Level room, next to E31."}, {"id": "E31", "type": "Classroom", "level": "Lower Level", "aliases": ["E31"], "x": 55.6, "y": 38.91, "w": 10, "h": 16, "note": "Lower Level room, next to E32."}, {"id": "Boys Locker Rooms", "type": "Facility", "level": "Lower Level", "aliases": ["Boys Locker Rooms"], "x": 24, "y": 58, "w": 19, "h": 15, "note": "Lower Level locker room area."}, {"id": "Girls Locker Rooms", "type": "Facility", "level": "Lower Level", "aliases": ["Girls Locker Rooms"], "x": 43, "y": 58, "w": 19, "h": 15, "note": "Lower Level locker room area."}, {"id": "Wrestling Room", "type": "Facility", "level": "Lower Level", "aliases": ["Wrestling Room"], "x": 53.71, "y": 55.99, "w": 19, "h": 23, "note": "Lower Level room near E31 and E32."}, {"id": "Swimming Pool", "type": "Facility", "level": "Lower Level", "aliases": ["Swimming Pool", "Pool"], "x": 29.0, "y": 68.0, "w": 20.0, "h": 16.0, "note": "Lower Level swimming pool area."}]};
+const mainRooms=DATA.mainHotspots, lowerRooms=DATA.lowerHotspots, allRooms=[...mainRooms,...lowerRooms];
+const viewport=document.getElementById('mapViewport');
+const mainStage=document.getElementById('mainStage'), lowerStage=document.getElementById('lowerStage');
+const roomPolys=document.getElementById('roomPolys');
+const search=document.getElementById('search'), results=document.getElementById('results'), searchClear=document.getElementById('searchClear');
+const mainFloorBtn=document.getElementById('mainFloorBtn'), lowerFloorBtn=document.getElementById('lowerFloorBtn'), lowerHeader=document.getElementById('lowerHeader');
+const sheet=document.getElementById('sheet'), sheetTitle=document.getElementById('sheetTitle'), sheetMeta=document.getElementById('sheetMeta'), sheetNote=document.getElementById('sheetNote');
+let floor='main', selectedRoom=null, selectedEl=null;
+let scale=1, tx=0, ty=0, minScale=.3, maxScale=4;
+let pointers=new Map(), dragStart=null, pinchStart=null, suppressClick=false;
+
+function activeStage(){return floor==='main'?mainStage:lowerStage;}
+function activeRooms(){return floor==='main'?mainRooms:lowerRooms;}
+function applyTransform(){activeStage().style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
+function stageNaturalSize(){return floor==='main'?{w:1448,h:1086}:{w:1000,h:750};}
+function fit(){
+  const r=viewport.getBoundingClientRect(), s=stageNaturalSize();
+  const topPad=86, bottomPad=30;
+  const availW=Math.max(200,r.width-20), availH=Math.max(200,r.height-topPad-bottomPad);
+  scale=Math.min(availW/s.w, availH/s.h);
+  scale=Math.max(minScale,Math.min(1.25,scale));
+  tx=(r.width-s.w*scale)/2;
+  ty=topPad+(availH-s.h*scale)/2;
+  applyTransform();
+}
+function clampScale(v){return Math.max(minScale,Math.min(maxScale,v));}
+function zoomAt(clientX,clientY,newScale){
+  newScale=clampScale(newScale);
+  const r=viewport.getBoundingClientRect();
+  const px=clientX-r.left, py=clientY-r.top;
+  const mx=(px-tx)/scale, my=(py-ty)/scale;
+  scale=newScale; tx=px-mx*scale; ty=py-my*scale; applyTransform();
+}
+function centerRoom(room, zoomTo=1.75){
+  const r=viewport.getBoundingClientRect();
+  let cx,cy;
+  if(Array.isArray(room.poly)&&room.poly.length){
+    cx=room.poly.reduce((a,p)=>a+p[0],0)/room.poly.length;
+    cy=room.poly.reduce((a,p)=>a+p[1],0)/room.poly.length;
+  } else {
+    cx=(room.x+room.w/2)/100*1448; cy=(room.y+room.h/2)/100*1086;
+  }
+  scale=clampScale(Math.max(scale,zoomTo));
+  const sheetOffset=sheet.classList.contains('open')?110:0;
+  tx=r.width/2-cx*scale; ty=(r.height/2-sheetOffset)-cy*scale; applyTransform();
+}
+function clearActive(){if(selectedEl)selectedEl.classList.remove('active'); selectedEl=null;}
+function clearSelection(){clearActive();selectedRoom=null;sheet.classList.remove('open');}
+function showRoom(room,el,center=true){
+  const targetFloor=room.level==='Lower Level'?'lower':'main';
+  if(targetFloor!==floor) setFloor(targetFloor,false);
+  clearActive(); selectedRoom=room; selectedEl=el||room._el; if(selectedEl)selectedEl.classList.add('active');
+  sheetTitle.textContent=room.id; sheetMeta.textContent=`${room.level} • ${room.type}`; sheetNote.textContent=room.note||''; sheet.classList.add('open');
+  results.classList.remove('show'); search.blur();
+  if(center) requestAnimationFrame(()=>centerRoom(room));
+}
 function addHotspot(room,parent){
   let el;
-  if(parent===mainStage && Array.isArray(room.poly) && room.poly.length>=3){
+  if(parent===mainStage && Array.isArray(room.poly)&&room.poly.length>=3){
     el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    el.setAttribute('points',room.poly.map(p=>p[0]+','+p[1]).join(' '));
-    el.setAttribute('class','svgHotspot');
-    roomPolys.appendChild(el);
+    el.setAttribute('points',room.poly.map(p=>p.join(',')).join(' ')); el.setAttribute('class','svgHotspot'); roomPolys.appendChild(el);
   } else {
-    el=document.createElement('div');
-    el.className='hotspot';
-    el.style.left=room.x+'%';el.style.top=room.y+'%';el.style.width=room.w+'%';el.style.height=room.h+'%';
-    parent.appendChild(el);
+    el=document.createElement('div'); el.className='rectHotspot';
+    el.style.left=room.x+'%';el.style.top=room.y+'%';el.style.width=room.w+'%';el.style.height=room.h+'%'; parent.appendChild(el);
   }
-  el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-label',room.id);el.dataset.roomId=room.id;
-  el.addEventListener('click',e=>{e.stopPropagation();handleRoomTap(room,el);});
-  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleRoomTap(room,el);}});
-  room._el=el;
+  el.setAttribute('aria-label',room.id); el.dataset.roomId=room.id;
+  el.addEventListener('click',e=>{e.stopPropagation();if(suppressClick){suppressClick=false;return;}showRoom(room,el,true);}); room._el=el;
 }
-function render(){mainRooms.forEach(r=>addHotspot(r,mainStage));lowerRooms.forEach(r=>addHotspot(r,lowerStage));}
-function clearActive(){if(activeEl)activeEl.classList.remove('active');activeEl=null;}
-function deselect(){clearActive();selectedId=null;info.classList.remove('show');lowerInfo.classList.remove('show');}
-function showMainInfo(room){
-  info.classList.add('show');
-  nameEl.textContent = room.id;
-  meta.textContent = ' — ' + room.level + ' • ' + room.type;
-  note.textContent = room.note || '';
+mainRooms.forEach(r=>addHotspot(r,mainStage)); lowerRooms.forEach(r=>addHotspot(r,lowerStage));
+
+function setFloor(next,doFit=true){
+  if(next===floor)return;
+  floor=next; clearActive(); selectedRoom=null; sheet.classList.remove('open'); results.classList.remove('show');
+  mainStage.classList.toggle('hidden',floor!=='main'); lowerStage.classList.toggle('active',floor==='lower');
+  mainFloorBtn.classList.toggle('active',floor==='main'); lowerFloorBtn.classList.toggle('active',floor==='lower'); lowerHeader.classList.toggle('show',floor==='lower');
+  tx=0;ty=0;scale=1; if(doFit)requestAnimationFrame(fit); else applyTransform();
 }
-function showLowerInfo(room){
-  lowerInfo.classList.add('show');
-  lowerName.textContent = room.id;
-  lowerMeta.textContent = ' — ' + room.level + ' • ' + room.type;
-  lowerNote.textContent = room.note || '';
-}
-function handleRoomTap(room,el){if(selectedId===room.id){deselect();return;}clearActive();selectedId=room.id;activeEl=el||room._el;if(activeEl)activeEl.classList.add('active');showMainInfo(room);results.classList.remove('show');if(room.action==='open-lower-room'){lowerModal.classList.add('open');const target=allRooms.find(r=>r.id===room.target);if(target){clearActive();selectedId=target.id;activeEl=target._el;if(activeEl)activeEl.classList.add('active');showMainInfo(target);showLowerInfo(target);}return;}if(room.action==='open-lower'){lowerModal.classList.add('open');return;}if(room.level==='Lower Level'){lowerModal.classList.add('open');showLowerInfo(room);}}
-function searchTextForRoom(r){
-  const aliases = Array.isArray(r.aliases) ? r.aliases : [];
-  return [r.id || '', r.type || '', r.level || '', ...aliases, r.note || ''].join(' ').toLowerCase();
-}
-function roomMatchScore(r, needle){
-  const id = String(r.id || '').toLowerCase();
-  const aliases = (Array.isArray(r.aliases) ? r.aliases : []).map(a => String(a).toLowerCase());
-  if(id === needle) return 0;
-  if(aliases.includes(needle)) return 1;
-  if(id.startsWith(needle)) return 2;
-  if(aliases.some(a => a.startsWith(needle))) return 3;
-  if(id.includes(needle)) return 4;
-  if(aliases.some(a => a.includes(needle))) return 5;
-  if(searchTextForRoom(r).includes(needle)) return 6;
-  return 99;
-}
-function findExactRoom(q){
-  const needle = q.trim().toLowerCase();
-  if(!needle) return null;
-  const ranked = allRooms
-    .map(r => ({r, score: roomMatchScore(r, needle)}))
-    .filter(x => x.score < 2)
-    .sort((a,b) => a.score - b.score || String(a.r.id).localeCompare(String(b.r.id)));
-  return ranked.length ? ranked[0].r : null;
-}
+mainFloorBtn.onclick=()=>setFloor('main'); lowerFloorBtn.onclick=()=>setFloor('lower');
+
+function textFor(r){return [r.id,r.type,r.level,...(r.aliases||[]),r.note||''].join(' ').toLowerCase();}
+function score(r,q){const id=r.id.toLowerCase(), a=(r.aliases||[]).map(x=>String(x).toLowerCase()); if(id===q)return 0;if(a.includes(q))return 1;if(id.startsWith(q))return 2;if(a.some(x=>x.startsWith(q)))return 3;if(id.includes(q))return 4;if(a.some(x=>x.includes(q)))return 5;if(textFor(r).includes(q))return 6;return 99;}
 function updateResults(){
-  const q = search.value.trim().toLowerCase();
-  results.innerHTML = '';
-  if(!q){ results.classList.remove('show'); return; }
-
-  const matches = allRooms
-    .map(r => ({r, score: roomMatchScore(r, q)}))
-    .filter(x => x.score < 99)
-    .sort((a,b) => a.score - b.score || String(a.r.id).localeCompare(String(b.r.id)))
-    .slice(0,40);
-
-  if(!matches.length){
-    const empty = document.createElement('div');
-    empty.className = 'searchEmpty';
-    empty.textContent = 'No matching room or location.';
-    results.appendChild(empty);
-    results.classList.add('show');
-    return;
-  }
-
-  matches.forEach(({r}) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'result';
-    b.innerHTML = '<strong>' + r.id + '</strong><br><span>' + r.level + ' • ' + r.type + '</span>';
-    b.addEventListener('click', () => {
-      search.value = r.id;
-      results.classList.remove('show');
-      handleRoomTap(r, r._el);
-    });
-    results.appendChild(b);
-  });
+  const q=search.value.trim().toLowerCase(); results.innerHTML=''; searchClear.classList.toggle('show',!!q); if(!q){results.classList.remove('show');return;}
+  const matches=allRooms.map(r=>({r,s:score(r,q)})).filter(x=>x.s<99).sort((a,b)=>a.s-b.s||a.r.id.localeCompare(b.r.id)).slice(0,30);
+  if(!matches.length){results.innerHTML='<div class="noResults">No matching room or location.</div>';results.classList.add('show');return;}
+  for(const {r} of matches){const b=document.createElement('button');b.className='result';b.type='button';b.innerHTML=`<span class="rname">${r.id}</span><span class="rmeta">${r.level}<br>${r.type}</span>`;b.onclick=()=>{search.value=r.id;searchClear.classList.add('show');showRoom(r,r._el,true);};results.appendChild(b);}
   results.classList.add('show');
 }
-function currentContext(){return lowerModal.classList.contains('open')?'lower':'main';}
+search.addEventListener('input',updateResults); search.addEventListener('focus',updateResults);
+search.addEventListener('keydown',e=>{if(e.key==='Escape'){results.classList.remove('show');search.blur();} if(e.key==='Enter'){const q=search.value.trim().toLowerCase();const m=allRooms.map(r=>({r,s:score(r,q)})).filter(x=>x.s<99).sort((a,b)=>a.s-b.s)[0]; if(m){e.preventDefault();showRoom(m.r,m.r._el,true);}}});
+searchClear.onclick=()=>{search.value='';results.classList.remove('show');searchClear.classList.remove('show');search.focus();};
 
-function applyLowerStageZoom(stage,zoom,baseMax){
-  if(Math.abs(zoom-1)<.01){
-    stage.style.width='100%';
-    stage.style.maxWidth=baseMax;
-  }else{
-    stage.style.maxWidth='none';
-    stage.style.width=(zoom*100)+'%';
-  }
-}
-
-function applyMainInterfaceZoom(){
-  appShell.style.zoom=String(mainZoom);
-}
-
-function applyZooms(){
-  applyMainInterfaceZoom();
-  applyLowerStageZoom(lowerStage,lowerZoom,'1000px');
-}
-
-function setZoom(z){
-  z=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,Math.round(z*100)/100));
-  if(currentContext()==='lower') lowerZoom=z;
-  else mainZoom=z;
-  applyZooms();
-}
-
-function fitMap(){
-  const isLower=currentContext()==='lower';
-  if(isLower){
-    // Keep the existing lower-level behavior isolated from the main-page UI.
-    const oldW=lowerStage.style.width, oldM=lowerStage.style.maxWidth;
-    lowerStage.style.width='100%';
-    lowerStage.style.maxWidth='1000px';
-    const rect=lowerStage.getBoundingClientRect();
-    const modalHead=document.querySelector('.modalHead');
-    const stickyH=(modalHead?modalHead.offsetHeight:0)+(lowerInfo.classList.contains('show')?lowerInfo.offsetHeight:0);
-    const availableH=Math.max(180,window.innerHeight-stickyH-18);
-    const z=Math.max(MIN_ZOOM,Math.min(1,availableH/Math.max(1,rect.height)));
-    lowerStage.style.width=oldW; lowerStage.style.maxWidth=oldM;
-    lowerZoom=z; applyZooms();
-    lowerModal.scrollTo({top:0,left:0,behavior:'smooth'});
-    return;
-  }
-
-  // Measure the whole interface at 100%, then scale search/info/help/map together.
-  const previous=mainZoom;
-  mainZoom=1;
-  applyMainInterfaceZoom();
-
-  // Close search suggestions for a stable measurement; do not clear the query.
-  results.classList.remove('show');
-
-  requestAnimationFrame(()=>{
-    const shellRect=appShell.getBoundingClientRect();
-    const mapRect=mainStage.getBoundingClientRect();
-    const shellTop=shellRect.top+window.scrollY;
-    const mapBottom=mapRect.bottom+window.scrollY;
-    const contentHeight=Math.max(1,mapBottom-shellTop+8);
-    const contentWidth=Math.max(1,appShell.scrollWidth);
-    const hScale=(window.innerHeight-10)/contentHeight;
-    const wScale=(window.innerWidth-10)/contentWidth;
-    mainZoom=Math.max(MIN_ZOOM,Math.min(1,hScale,wScale));
-    applyMainInterfaceZoom();
-    window.scrollTo({top:0,left:0,behavior:'smooth'});
-  });
-}
-
-function dismissSearchWithoutJump(){
-  if(!results.classList.contains('show') && document.activeElement!==search) return;
-  const x=window.scrollX, y=window.scrollY;
-  results.classList.remove('show');
-  if(document.activeElement===search) search.blur();
-  // Mobile browsers can alter the visual viewport when the keyboard closes.
-  // Restore the map position after both the immediate and delayed viewport update.
-  requestAnimationFrame(()=>window.scrollTo(x,y));
-  setTimeout(()=>window.scrollTo(x,y),90);
-}
-
-mainStage.addEventListener('pointerdown', ()=>{ dismissSearchWithoutJump(); }, {passive:true});
-search.addEventListener('input', updateResults);
-search.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    const exact = findExactRoom(search.value);
-    if(exact){
-      results.classList.remove('show');
-      handleRoomTap(exact, exact._el);
-      search.blur();
-    }
-  } else if(e.key === 'Escape'){
-    results.classList.remove('show');
-    search.blur();
-  }
-});document.getElementById('clearBtn').addEventListener('click',()=>{search.value='';results.classList.remove('show');deselect();});document.getElementById('lowerBtn').addEventListener('click',()=>lowerModal.classList.add('open'));document.getElementById('closeLower').addEventListener('click',()=>{lowerModal.classList.remove('open');lowerInfo.classList.remove('show');deselect();});
-document.getElementById('zoomInBtn').addEventListener('click',()=>setZoom((currentContext()==='lower'?lowerZoom:mainZoom)+STEP));document.getElementById('zoomOutBtn').addEventListener('click',()=>setZoom((currentContext()==='lower'?lowerZoom:mainZoom)-STEP));document.getElementById('zoomFitBtn').addEventListener('click',fitMap);
-let lastLayoutWidth=window.innerWidth;
-window.addEventListener('resize', ()=>{
-  const widthDelta=Math.abs(window.innerWidth-lastLayoutWidth);
-  lastLayoutWidth=window.innerWidth;
-  if(document.activeElement===search) return;
-  if(window.innerWidth>700 && widthDelta>80){
-    clearTimeout(fitTimer);
-    fitTimer=setTimeout(()=>{ if(currentContext()==='main') fitMap(); },180);
-  }
+viewport.addEventListener('pointerdown',e=>{
+  if(e.target!==viewport && !e.target.closest('.mapStage'))return;
+  search.blur();results.classList.remove('show'); hint.style.opacity='0';
+  viewport.setPointerCapture?.(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===1){dragStart={x:e.clientX,y:e.clientY,tx,ty,startX:e.clientX,startY:e.clientY};suppressClick=false;viewport.classList.add('dragging');}
+  if(pointers.size===2){const pts=[...pointers.values()];const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;pinchStart={dist:Math.hypot(dx,dy),scale,tx,ty,cx:(pts[0].x+pts[1].x)/2,cy:(pts[0].y+pts[1].y)/2};}
 });
-window.addEventListener('orientationchange', ()=>{ clearTimeout(fitTimer); fitTimer=setTimeout(()=>{ if(currentContext()==='main') fitMap(); },320); });
-render();applyZooms();setTimeout(fitMap, 180);
-</script></body></html>
+viewport.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId))return; pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===1&&dragStart){if(Math.hypot(e.clientX-dragStart.startX,e.clientY-dragStart.startY)>6)suppressClick=true;tx=dragStart.tx+(e.clientX-dragStart.x);ty=dragStart.ty+(e.clientY-dragStart.y);applyTransform();}
+  else if(pointers.size===2&&pinchStart){const pts=[...pointers.values()];const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;const dist=Math.hypot(dx,dy);const ns=pinchStart.scale*(dist/pinchStart.dist);zoomAt(pinchStart.cx,pinchStart.cy,ns);}
+});
+function endPointer(e){pointers.delete(e.pointerId);viewport.classList.remove('dragging');if(pointers.size===1){const p=[...pointers.values()][0];dragStart={x:p.x,y:p.y,tx,ty,startX:p.x,startY:p.y};}else{dragStart=null;pinchStart=null;}if(suppressClick)setTimeout(()=>{suppressClick=false;},80);}
+viewport.addEventListener('pointerup',endPointer);viewport.addEventListener('pointercancel',endPointer);
+viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,scale*(e.deltaY<0?1.12:.89));},{passive:false});
+viewport.addEventListener('dblclick',e=>{zoomAt(e.clientX,e.clientY,scale*1.35);});
+
+document.getElementById('zoomInBtn').onclick=()=>zoomAt(viewport.clientWidth/2,viewport.clientHeight/2,scale*1.22);
+document.getElementById('zoomOutBtn').onclick=()=>zoomAt(viewport.clientWidth/2,viewport.clientHeight/2,scale*.82);
+document.getElementById('fitBtn').onclick=fit;
+document.getElementById('sheetClose').onclick=()=>sheet.classList.remove('open');
+document.getElementById('clearSelected').onclick=clearSelection;
+document.getElementById('recenterSelected').onclick=()=>{if(selectedRoom)centerRoom(selectedRoom);};
+window.addEventListener('orientationchange',()=>setTimeout(fit,180));
+window.addEventListener('resize',()=>{if(window.innerWidth>700)setTimeout(fit,80);});
+requestAnimationFrame(fit);
+</script>
+</body>
+</html>
