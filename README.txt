@@ -11,3 +11,7 @@ Includes:
 - Blue and green route overlays with separated segments (no connected junction blobs)
 
 Upload all files in this folder to the root of the GitHub mckean-map repository.
+
+
+Version: simple v17 isolated-routes
+Removed all blue and green connector segments so neighboring colored route sections never connect.
